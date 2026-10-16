@@ -1,0 +1,40 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "feishu-office",
+  "version": "1.0.98",
+  "description": "使用飞书官方 CLI 与技能处理文档、多维表格、日程和任务。保留官方辅助技能及完整引用。",
+  "author": {
+    "name": "Lark Suite CLI contributors"
+  },
+  "homepage": "https://github.com/larksuite/cli",
+  "repository": "https://github.com/larksuite/cli",
+  "license": "MIT",
+  "keywords": [
+    "飞书",
+    "文档",
+    "多维表格",
+    "日程",
+    "任务"
+  ],
+  "extensions": {
+    "com.ally": {
+      "displayName": "飞书办公",
+      "provider": "feishu",
+      "scopes": [
+        "offline_access",
+        "docx:document",
+        "bitable:app",
+        "calendar:calendar",
+        "task:task:read",
+        "task:task:write"
+      ],
+      "requiredComponents": [
+        "skills/lark-doc",
+        "skills/lark-base",
+        "skills/lark-calendar",
+        "skills/lark-task",
+        "skills/lark-shared"
+      ]
+    }
+  }
+}

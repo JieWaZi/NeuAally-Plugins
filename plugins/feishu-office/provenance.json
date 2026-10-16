@@ -1,0 +1,16 @@
+{
+  "upstream": {
+    "repository": "https://github.com/larksuite/cli",
+    "commit": "ac81f5056ab88f37d581d25916f3dab85abfca76",
+    "tag": "v1.0.98",
+    "license": "MIT",
+    "author": "Lark Suite CLI contributors"
+  },
+  "wrapper": {
+    "maintainer": "NeuxAlly contributors",
+    "changes": [
+      "添加 Agent Plugins 标准清单及客户端授权声明",
+      "官方 skills 目录和相对引用保持原样"
+    ]
+  }
+}
