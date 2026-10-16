@@ -11,8 +11,8 @@
     "url": "https://api.githubcopilot.com/mcp/",
     "distribution": "GitHub hosted service; implementation version is not pinned or redistributed"
   },
-  "skill": {
+  "wrapper": {
     "author": "NeuxAlly contributors",
-    "source": "Original integration instructions; not an official GitHub Skill"
+    "source": "Original plugin manifest and shared CLI authentication adapter; capabilities are provided by the official MCP"
   }
 }
