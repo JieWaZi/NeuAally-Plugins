@@ -20,7 +20,7 @@
     "toolchain": "go1.27.1",
     "version": "2.102.0-neuxally.1",
     "patch": "patches/github-keyring-isolation.patch",
-    "patchSHA256": "6b4232170096c5b98afa3800e85ad933ae612834c99f9fc65c12131fa961cea0",
+    "patchSHA256": "63f0c564ce260baf1e747c66a995c3f323756822e7a0fa997fe74ee8ed38cd05",
     "verification": "patches/github-keyring-isolation_test.go",
     "verificationSHA256": "6111b6c41a99738ac7accf3296d721ff1f8d488c8f28a392da6e064965a3bcb6",
     "reason": "Prefix every underlying keyring operation with neuxally:; official OAuth and CLI behavior otherwise retained"
