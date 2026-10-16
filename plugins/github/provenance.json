@@ -4,7 +4,8 @@
     "repository": "https://github.com/cli/cli",
     "version": "2.102.0",
     "commit": "fc4b137cdef0a6bd28fd461b7cf9c84a5812a8cd",
-    "license": "MIT"
+    "license": "MIT",
+    "distribution": "Fixed-source isolated build; not an unmodified release binary"
   },
   "mcp": {
     "repository": "https://github.com/github/github-mcp-server",
@@ -14,5 +15,14 @@
   "wrapper": {
     "author": "NeuxAlly contributors",
     "source": "Original plugin manifest and shared CLI authentication adapter; capabilities are provided by the official MCP"
+  },
+  "build": {
+    "toolchain": "go1.27.1",
+    "version": "2.102.0-neuxally.1",
+    "patch": "patches/github-keyring-isolation.patch",
+    "patchSHA256": "6b4232170096c5b98afa3800e85ad933ae612834c99f9fc65c12131fa961cea0",
+    "verification": "patches/github-keyring-isolation_test.go",
+    "verificationSHA256": "6111b6c41a99738ac7accf3296d721ff1f8d488c8f28a392da6e064965a3bcb6",
+    "reason": "Prefix every underlying keyring operation with neuxally:; official OAuth and CLI behavior otherwise retained"
   }
 }
