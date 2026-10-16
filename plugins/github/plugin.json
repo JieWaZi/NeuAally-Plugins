@@ -1,0 +1,31 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "github",
+  "version": "1.0.0",
+  "description": "使用 GitHub 官方 MCP 和 CLI 处理仓库、Issue 与 Pull Request。登录一次后共享给所选伙伴。",
+  "author": {
+    "name": "NeuxAlly contributors"
+  },
+  "homepage": "https://github.com/github/github-mcp-server",
+  "license": "MIT",
+  "keywords": [
+    "GitHub",
+    "仓库",
+    "Issue",
+    "Pull Request"
+  ],
+  "extensions": {
+    "com.ally": {
+      "displayName": "GitHub",
+      "provider": "github",
+      "scopes": [
+        "repo",
+        "read:org",
+        "gist"
+      ],
+      "requiredComponents": [
+        "skills/github"
+      ]
+    }
+  }
+}

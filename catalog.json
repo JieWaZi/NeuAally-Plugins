@@ -3,5 +3,10 @@
     "key": "feishu-office",
     "directory": "plugins/feishu-office",
     "provider": "feishu"
+  },
+  {
+    "key": "github",
+    "directory": "plugins/github",
+    "provider": "github"
   }
 ]
