@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "feishu-office",
-  "version": "1.0.98-neuxally.1",
+  "version": "1.0.98-neuxally.2",
   "description": "协助编写飞书文档、管理多维表格、安排日程和跟进任务。",
   "author": {
     "name": "Lark Suite CLI contributors"
