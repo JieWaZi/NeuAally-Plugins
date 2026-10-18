@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "github",
-  "version": "1.0.1",
-  "description": "使用 GitHub 官方 MCP 处理仓库、Issue 与 Pull Request。登录一次后共享给所选伙伴。",
+  "version": "1.0.2",
+  "description": "检索仓库代码、跟进 Issue，协助整理与评审 Pull Request。",
   "author": {
     "name": "GitHub",
     "url": "https://github.com/github"
