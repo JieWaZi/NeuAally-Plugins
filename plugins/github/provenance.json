@@ -14,7 +14,8 @@
   },
   "wrapper": {
     "author": "NeuxAlly contributors",
-    "source": "Original plugin manifest and shared CLI authentication adapter; capabilities are provided by the official MCP"
+    "source": "Original plugin manifest and shared CLI authentication adapter; capabilities are provided by the official MCP",
+    "maintainer": "NeuxAlly contributors"
   },
   "build": {
     "toolchain": "go1.27.1",
