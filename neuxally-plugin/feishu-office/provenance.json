@@ -9,8 +9,9 @@
   "wrapper": {
     "maintainer": "NeuxAlly contributors",
     "changes": [
-      "添加 Agent Plugins 标准清单及客户端授权声明",
-      "官方 skills 目录和相对引用保持原样"
+      "自有 Codex 标准清单与 NeuxAlly 声明驱动授权桥接",
+      "官方 skills 目录和相对引用保持原样",
+      "固定 CLI 的私有 profile/keychain 隔离补丁与资产锁在本仓库公开"
     ]
   }
 }

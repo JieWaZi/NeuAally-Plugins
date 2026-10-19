@@ -1,0 +1,51 @@
+{
+  "upstream": {
+    "repository": "https://github.com/openai/plugins",
+    "commit": "0722921d5542fc593105c27bd52630babd8b8c2a",
+    "path": "plugins/github",
+    "license": "MIT (declared in upstream manifest; no upstream LICENSE file in snapshot)"
+  },
+  "wrapper": {
+    "maintainer": "NeuxAlly contributors",
+    "changes": [
+      "原生文件逐字节保留；增加 provenance.json 和可得的上游许可文件"
+    ]
+  },
+  "files": [
+    {
+      "path": ".app.json",
+      "sha256": "5a803d452119abe6c5ccec088370ada20dc80b3812ab7402218c47ee6596a7d4",
+      "mode": "100644"
+    },
+    {
+      "path": ".codex-plugin/plugin.json",
+      "sha256": "f4cc2f85283f50bc1afdb47f13fbd2f3b6724200ee222ba952a54772c88e1cf3",
+      "mode": "100644"
+    },
+    {
+      "path": ".mcp.json",
+      "sha256": "c2c7dfc03ad9465becee0a5a68a6416f7a20425bb7619e266f8702ba210847a3",
+      "mode": "100644"
+    },
+    {
+      "path": "README.md",
+      "sha256": "ffa4ec0d029f42b9c04f96c6fa46bf4821eb709ade27429165cf419d0ac73099",
+      "mode": "100644"
+    },
+    {
+      "path": "assets/github-dark.png",
+      "sha256": "9352c02c11e4b5c63e8990f6d8b973f551d25284186d3faeb8d7d0186d89c919",
+      "mode": "100644"
+    },
+    {
+      "path": "assets/github-small.svg",
+      "sha256": "ee05e92d373d4d84f4612af3c1090ef67698d421bbe30896a4ed5a00cb86a069",
+      "mode": "100644"
+    },
+    {
+      "path": "assets/github.png",
+      "sha256": "07e4d8c81c906dc6fffa42f2686f446724c86c2079b23aa6c77ab9dab782fdea",
+      "mode": "100644"
+    }
+  ]
+}

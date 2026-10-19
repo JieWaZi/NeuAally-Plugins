@@ -1,0 +1,11 @@
+{
+  "name": "neuxally-plugins",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test scripts/test/*.test.mjs",
+    "build": "node scripts/build-catalog.mjs",
+    "build:providers": "node scripts/build-lark-provider.mjs"
+  },
+  "engines": { "node": ">=22" }
+}

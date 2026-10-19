@@ -1,0 +1,10 @@
+{
+  "name": "github",
+  "version": "2.0.0",
+  "description": "按当前智能体使用 OpenAI 或 Claude Code 的 GitHub 原生插件。",
+  "author": {
+    "name": "NeuxAlly contributors"
+  },
+  "repository": "https://github.com/JieWaZi/NeuAally-Plugins",
+  "license": "MIT"
+}

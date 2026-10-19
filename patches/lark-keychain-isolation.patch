@@ -1,0 +1,48 @@
+diff --git a/internal/keychain/keychain.go b/internal/keychain/keychain.go
+index 4ae2e91..a9ca0ed 100644
+--- a/internal/keychain/keychain.go
++++ b/internal/keychain/keychain.go
+@@ -8,0 +9,2 @@ import (
++	"crypto/sha256"
++	"encoding/hex"
+@@ -10,0 +13,2 @@ import (
++	"os"
++	"path/filepath"
+@@ -84 +88 @@ func Get(service, account string) (string, error) {
+-	val, err := platformGet(service, account)
++	val, err := platformGet(privateService(service), account)
+@@ -90 +94 @@ func Set(service, account, data string) error {
+-	return wrapError("Set", platformSet(service, account, data))
++	return wrapError("Set", platformSet(privateService(service), account, data))
+@@ -95 +99,16 @@ func Remove(service, account string) error {
+-	return wrapError("Remove", platformRemove(service, account))
++	return wrapError("Remove", platformRemove(privateService(service), account))
++}
++
++// privateService 将受管 profile 的全部凭据绑定到独立系统命名空间。
++// Get、Set、Remove 共用此边界，默认适配器和 DPoP 也不会借用用户 CLI 身份。
++func privateService(service string) string {
++	profile := os.Getenv("LARKSUITE_CLI_CONFIG_DIR")
++	if profile == "" {
++		return service
++	}
++	absolute, err := filepath.Abs(profile)
++	if err != nil {
++		absolute = filepath.Clean(profile)
++	}
++	digest := sha256.Sum256([]byte(filepath.Clean(absolute)))
++	return "neuxally-" + service + "-" + hex.EncodeToString(digest[:])
+diff --git a/internal/keychain/keychain_darwin.go b/internal/keychain/keychain_darwin.go
+index d92a055..a487fcd 100644
+--- a/internal/keychain/keychain_darwin.go
++++ b/internal/keychain/keychain_darwin.go
+@@ -20,0 +21 @@ import (
++	"github.com/larksuite/cli/internal/validate"
+@@ -53,0 +55,7 @@ func StorageDir(service string) string {
++	// 受管插件的凭据及 DPoP 文件必须留在私有数据目录，避免共享软件密钥目录。
++	if directory := os.Getenv("LARKSUITE_CLI_DATA_DIR"); directory != "" {
++		if safeDirectory, err := validate.SafeEnvDirPath(directory, "LARKSUITE_CLI_DATA_DIR"); err == nil {
++			return filepath.Join(safeDirectory, service)
++		}
++	}
++

@@ -1,0 +1,12 @@
+{
+  "name": "neuxally-plugins",
+  "owner": {
+    "name": "NeuxAlly contributors"
+  },
+  "plugins": [
+    {
+      "name": "github",
+      "source": "./claude-plugins/github"
+    }
+  ]
+}

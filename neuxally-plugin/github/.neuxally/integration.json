@@ -1,0 +1,10 @@
+{
+  "nativePlugins": {
+    "codex": {
+      "path": "codex-plugins/github"
+    },
+    "claude": {
+      "path": "claude-plugins/github"
+    }
+  }
+}

@@ -8,14 +8,14 @@
       "name": "feishu-office",
       "source": {
         "source": "local",
-        "path": "./plugins/feishu-office"
+        "path": "./neuxally-plugin/feishu-office"
       }
     },
     {
       "name": "github",
       "source": {
         "source": "local",
-        "path": "./plugins/github"
+        "path": "./codex-plugins/github"
       }
     }
   ]
