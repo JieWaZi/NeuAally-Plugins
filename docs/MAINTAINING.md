@@ -2,7 +2,7 @@
 
 [English](MAINTAINING.md) | [简体中文](MAINTAINING.zh-CN.md)
 
-The repository [development guide](../README.md) owns source registration, native routing, authorization architecture and release builds. Plugin READMEs describe only business capabilities, connection steps and usage examples. Keep vendor details, source versions, compatibility decisions, validation limits and maintenance instructions in the development guide or [third-party notices](../THIRD_PARTY_NOTICES.md).
+The repository [development guide](../README.md) owns source registration, native routing, authorization architecture and release builds. Plugin READMEs describe only the plugin’s native capabilities, access requirements and practical uses. Do not include host roles such as partners, NeuxAlly installation steps, chat prompts or “try asking” instructions. Keep vendor details, source versions, compatibility decisions, validation limits and maintenance instructions in the development guide or [third-party notices](../THIRD_PARTY_NOTICES.md).
 
 ## Standard manifest and localized presentation
 
@@ -30,7 +30,7 @@ The release builder derives optional `displayNames` and `localizedDescriptions` 
 
 For release icons, use a static noninterlaced 8-bit PNG under `./assets/`, at most 128 KiB and 2048×2048 pixels. The builder validates the signature, chunk checksums, dimensions, compressed pixels and scanline filters before emitting a canonical `data:image/png;base64,...` URI. It rejects external URLs, unsafe paths, symlinks, SVG and malformed or oversized data. The host also validates catalog icons before presenting them; its broader supported image set does not expand the release policy.
 
-Catalog discovery needs no package download or external icon request. The complete ZIP retains the PNG, localized presentation file and both READMEs. All are read from the fixed source commit; dirty workspace files cannot alter that release. Rebuild and verify with `npm test` and `node scripts/build-catalog.mjs HEAD v0.1.0` after committing the reviewed changes.
+Catalog discovery needs no package download or external icon request. The complete ZIP retains the PNG, localized presentation file and both READMEs. All are read from the fixed source commit; dirty workspace files cannot alter that release. Rebuild and verify with `npm test` and `node scripts/build-catalog.mjs HEAD v0.1.1` after committing the reviewed changes.
 
 ## Existing integrations
 

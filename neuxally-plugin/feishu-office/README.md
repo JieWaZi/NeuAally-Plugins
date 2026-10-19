@@ -2,28 +2,23 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-Work with your partner on Feishu documents, tables, calendars and tasks, from preparing content to following up on shared work.
+Create and organize Feishu documents, manage table records, arrange calendar events and track tasks.
 
-## What you can do
+## Capabilities
 
-- Draft and organize documents, find relevant content and turn notes into a clear report.
-- Search and update table records, organize project information and summarize progress.
-- Review your schedule and arrange events with clear times and participants.
-- Create and follow up on tasks, including owners, due dates and completion status.
-- Combine meeting notes, project records and action items into a practical work plan.
+- Read, create and update documents, and organize notes into structured content.
+- Search and update table records to maintain project information and summarize progress.
+- View schedules and arrange events with specified times and participants.
+- Create and follow up on tasks with owners, due dates and completion status.
+- Retrieve meeting notes and organize decisions and action items.
 
-## Get started
+## Access requirements
 
-Install Feishu Office for a partner in the plugin library. Choose Connect and follow the prompts to complete authorization. Select the account and permissions appropriate for the work you want to do.
+A Feishu account must authorize the relevant capabilities. Documents, tables, calendars and tasks remain subject to their own sharing permissions and organization policies. Writing requires permission to edit the target resource; account authorization alone does not grant access to every resource.
 
-In a conversation, share the relevant document or table link and describe the desired result. For calendar events and tasks, include the people involved, dates, time zone and deadlines. Ask the partner to prepare a draft when you want to review the content before making changes.
+## Practical uses
 
-## Try asking
-
-- “Turn these meeting notes into a Feishu document with decisions and action items.”
-- “Summarize this project table and highlight overdue work.”
-- “Find a suitable time for a project review next week.”
-- “Create follow-up tasks from this document and suggest owners and due dates.”
-- “Read this document and prepare a concise progress update.”
-
-The partner works within the access you grant. You can manage the connection from the plugin settings.
+- **Document preparation:** turn meeting notes or project material into a structured document.
+- **Project tracking:** organize table records and identify overdue work or missing information.
+- **Calendar planning:** review availability and arrange project meetings.
+- **Task follow-up:** record action items with owners and deadlines, then check completion.
