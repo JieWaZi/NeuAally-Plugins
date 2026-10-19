@@ -19,7 +19,7 @@ The root is a library and marketplace, not a single plugin, so it has no root si
 - `patches/`: reviewed provider isolation patches, regression sources, original licenses and provenance.
 - `scripts/`: deterministic catalog/ZIP builds and independent fixed-source provider builds. Ignored `dist/` contains release artifacts; `.cache/` contains verified build inputs.
 
-In NeuxAlly, HTTP discovery reads catalog metadata; installation downloads the selected complete ZIP for a partner. The host adapts this one standard package to the selected runtime. NeuxAlly can still import existing native Codex and Claude packages; that host compatibility does not require this library to maintain two source packages. Direct standard use can load the root local marketplace or the package's own standard contents, subject to the CLI's supported capabilities.
+NeuxAlly installs plugins only from this maintained library’s published HTTP catalog and adapts each standard package to the selected agent. It provides no plugin upload, local-directory import, or ZIP import. Native plugin installation requested in a conversation belongs to the current Codex or Claude Code environment, shared with the same external CLI. Those native installations, enablement settings, and authentication stay under the CLI’s ownership and are not registered or managed as NeuxAlly resources. Direct use of the local marketplace or package follows the target CLI’s capabilities; Codex does not interpret NeuxAlly-specific authentication declarations automatically.
 
 The manifest's `repository` and `interface.developerName` identify the official capability project and brand: GitHub / `github/github-mcp-server`, and 飞书 / `larksuite/cli`. `author` and provenance separately identify NeuxAlly contributors as authors of the package wrapper and bridge. Official service/skill authorship is not authorship of this packaging, and brand attribution is not official endorsement. See [third-party notices](THIRD_PARTY_NOTICES.md).
 
@@ -36,6 +36,12 @@ flowchart LR
   Adapter --> Codex[Codex]
   Adapter --> Claude[Claude Code]
   Adapter --> Skills[Other supported skill targets]
+  Chat[Native installation in chat] -->|Selected agent| Codex
+  Chat -->|Selected agent| Claude
+  Codex <--> CodexHome[Codex native plugin environment]
+  ExternalCodex[External Codex] <--> CodexHome
+  Claude <--> ClaudeHome[Claude Code native plugin environment]
+  ExternalClaude[External Claude Code] <--> ClaudeHome
 ```
 
 ## Maintaining a standard package

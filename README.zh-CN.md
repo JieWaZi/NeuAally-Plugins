@@ -19,7 +19,7 @@
 - `patches/`：供应商隔离补丁、回归源码、原始许可与来源记录。
 - `scripts/`：确定性目录/ZIP 构建和独立固定源码程序构建；忽略的 `dist/` 保存发布资产，`.cache/` 保存核验后的构建输入。
 
-NeuxAlly 通过 HTTP 查询目录，为伙伴下载完整插件 ZIP，并将同一个标准包适配到所选智能体。应用仍可导入已有的 Codex 和 Claude 原生包；宿主兼容能力不要求本库维护两套来源包。直接标准使用可读取根本地 marketplace 或包内标准内容，具体能力以 CLI 支持范围为准。
+NeuxAlly 只通过本库发布的 HTTP 目录为伙伴安装插件，并将同一个标准包适配到所选智能体。系统不提供上传、本地目录或 ZIP 导入，也不收集和管理用户原生 CLI 的第三方插件。用户在聊天中要求安装原生插件时，由当前 Codex 或 Claude Code 使用与外部相同 CLI 共用的原生插件环境处理；这类安装、启停和认证归 CLI 管理，不登记为 NeuxAlly 资源。直接标准使用可读取根本地 marketplace 或包内标准内容，具体能力与授权方式以 CLI 支持范围为准；Codex 不会自动解释 NeuxAlly 专属授权声明。
 
 清单 `repository` 与 `interface.developerName` 指向官方业务能力项目和品牌：GitHub / `github/github-mcp-server`，飞书 / `larksuite/cli`。`author` 和来源记录分别如实说明包内封装与桥接由 NeuxAlly contributors 编写。官方服务或技能作者不等同本封装作者，品牌署名也不代表官方背书。见[第三方声明](THIRD_PARTY_NOTICES.md)。
 
@@ -36,6 +36,12 @@ flowchart LR
   Adapter --> Codex[Codex]
   Adapter --> Claude[Claude Code]
   Adapter --> Skills[其他受支持技能目标]
+  Chat[聊天原生安装] -->|当前智能体| Codex
+  Chat -->|当前智能体| Claude
+  Codex <--> CodexHome[Codex 原生插件环境]
+  ExternalCodex[外部 Codex] <--> CodexHome
+  Claude <--> ClaudeHome[Claude Code 原生插件环境]
+  ExternalClaude[外部 Claude Code] <--> ClaudeHome
 ```
 
 ## 维护标准包
