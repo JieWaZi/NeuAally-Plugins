@@ -15,7 +15,7 @@
 
 ## 安装与使用
 
-在支持 v2 目录的 NeuxAlly 中打开资源库，为伙伴安装插件，需要时完成声明的授权。对话安装通过宿主能力发现取得 `allycli` 安装能力，调用相同用例，不改写用户的 Codex 或 Claude 全局注册表。
+在支持插件目录的 NeuxAlly 中打开资源库，为伙伴安装插件，需要时完成声明的授权。对话安装通过宿主能力发现取得 `allycli` 安装能力，调用相同用例，不改写用户的 Codex 或 Claude 全局注册表。
 
 系统逻辑插件为伙伴安装一次，保留一份关系和逻辑版本，由宿主选择当前 CLI 的固定实现。有明确原生引用时优先使用；只有没有该目标引用时才使用已有自有内容。纯引用入口没有适用实现时明确失败。
 
@@ -75,17 +75,17 @@ node scripts/lock-native-source.mjs codex-plugins/example https://github.com/exa
 }
 ```
 
-路径相对已核验发布来源根解析。源码检出在这些路径保存引用；安装 ZIP 在相同路径还原完整原生实现。应用继续消费原有 v2 归档契约，不需要 Git 程序。逻辑版本和原生版本分别追踪，上游没有版本时不虚构。
+路径相对已核验发布来源根解析。源码检出在这些路径保存引用；安装 ZIP 在相同路径还原完整原生实现。应用继续消费同一归档契约，不需要 Git 程序。逻辑版本和原生版本分别追踪，上游没有版本时不虚构。
 
 OpenAI GitHub 保留托管 app 声明和公共 OAuth 客户端配置；Claude GitHub 要求通过受保护配置提供 `GITHUB_PERSONAL_ACCESS_TOKEN`。二者不能证明另一个账号模型在当前宿主可用，用户 token 必须保密。详见 [来源与许可证据](THIRD_PARTY_NOTICES.md)。
 
 ## HTTP 查询、版本固定与离线快照
 
-使用 [最新目录](https://github.com/JieWaZi/NeuAally-Plugins/releases/latest/download/catalog.json) 查询，或用 [固定 v2.0.1 目录](https://github.com/JieWaZi/NeuAally-Plugins/releases/download/v2.0.1/catalog.json) 保持可重现；新版本只有维护者发布后才可下载。
+使用 [最新目录](https://github.com/JieWaZi/NeuAally-Plugins/releases/latest/download/catalog.json) 查询，或用 [固定 v0.1.0 目录](https://github.com/JieWaZi/NeuAally-Plugins/releases/download/v0.1.0/catalog.json) 保持可重现；新版本只有维护者发布后才可下载。
 
 ```sh
-curl --fail --location https://github.com/JieWaZi/NeuAally-Plugins/releases/download/v2.0.1/catalog.json --output catalog.json
-curl --fail --location https://github.com/JieWaZi/NeuAally-Plugins/releases/download/v2.0.1/github.zip --output github.zip
+curl --fail --location https://github.com/JieWaZi/NeuAally-Plugins/releases/download/v0.1.0/catalog.json --output catalog.json
+curl --fail --location https://github.com/JieWaZi/NeuAally-Plugins/releases/download/v0.1.0/github.zip --output github.zip
 shasum -a 256 github.zip
 ```
 
@@ -138,13 +138,13 @@ sequenceDiagram
 
 ```sh
 npm test
-node scripts/build-catalog.mjs HEAD v2.0.1
+node scripts/build-catalog.mjs HEAD v0.1.0
 ```
 
 构建器还原固定上游树、校验原生清单，在忽略的 `dist/` 生成可重现 ZIP 和目录，保留文件原文与执行位。相同输入和已核验缓存产生相同 ZIP；脏工作区内容不会进入固定提交。
 
-v2.0.1 的两个逻辑入口均为 `2.0.1`。飞书依赖锁继续引用既有 v2.0.0 不可变 CLI 资产，不必重建或重新上传二进制。`scripts/build-lark-provider.mjs` 保留给以后明确的依赖更新，继续固定工具链、公开补丁和完整许可收集。
+测试发布使用 `v0.1.x`，从 `v0.1.0` 开始，后续修正递增补丁号；两个自有逻辑入口同步使用 `0.1.0`。第三方原生插件、CLI 和协议版本保持自身含义。飞书依赖锁指向 v0.1.0 的固定 CLI 资产，程序版本和摘要保持不变。`scripts/build-lark-provider.mjs` 保留给以后明确的依赖更新，继续固定工具链、公开补丁和完整许可收集。
 
-评审并获准后，只把 `dist/catalog.json`、`dist/github.zip`、`dist/feishu-office.zip` 发布到指向精确来源提交的新 v2.0.1 Release，保持历史资产不变。构建检查不能替代真实 CLI、账号、平台或视觉验收。
+评审并获准后，把 `dist/catalog.json`、`dist/github.zip`、`dist/feishu-office.zip` 发布到指向精确来源提交的新 v0.1.0 测试 Release，并显式设为 latest 供默认目录发现；同时上传资产锁要求的依赖和许可，保持历史资产不变。构建检查不能替代真实 CLI、账号、平台或视觉验收。
 
 根目录 [MIT 许可](LICENSE) 适用于 NeuxAlly 自有内容；第三方内容与发布快照保留其实际条款，详见 [第三方声明](THIRD_PARTY_NOTICES.md)。

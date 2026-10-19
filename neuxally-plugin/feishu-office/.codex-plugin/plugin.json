@@ -1,6 +1,6 @@
 {
   "name": "feishu-office",
-  "version": "2.0.1",
+  "version": "0.1.0",
   "description": "协助编写飞书文档、管理多维表格、安排日程和跟进任务。",
   "author": {
     "name": "NeuxAlly contributors"

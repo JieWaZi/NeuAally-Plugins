@@ -1,6 +1,6 @@
 {
   "name": "github",
-  "version": "2.0.1",
+  "version": "0.1.0",
   "description": "检索 GitHub 仓库、议题和拉取请求，协助代码审查与协作。",
   "author": {
     "name": "NeuxAlly contributors"

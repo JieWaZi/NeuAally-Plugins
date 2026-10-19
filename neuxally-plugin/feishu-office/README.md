@@ -8,4 +8,4 @@
 
 私有配置和加密凭据位于宿主分配的数据目录，钥匙串/注册表服务按 profile 摘要隔离。业务执行只使用获准组件的受管环境；不要在聊天中运行 `config init`、`auth login`、`auth logout` 或更改身份目录。共享账号的授权、退出和最后引用清理由宿主管理。
 
-上游版本为 `1.0.98`，受管 CLI 版本为 `1.0.98-neuxally.1`，逻辑插件版本为 `2.0.1`。这些版本分别表示技能来源、隔离构建和逻辑入口。固定资产与源码补丁见 [.neuxally/auth/assets.lock.json](.neuxally/auth/assets.lock.json)、[provenance.json](provenance.json) 与 [第三方声明](../../THIRD_PARTY_NOTICES.md)。自动化协议测试使用隔离外部边界，未执行真实飞书账号验收。
+上游版本为 `1.0.98`，受管 CLI 版本为 `1.0.98-neuxally.1`，逻辑插件版本为 `0.1.0`。这些版本分别表示技能来源、隔离构建和逻辑入口。固定资产与源码补丁见 [.neuxally/auth/assets.lock.json](.neuxally/auth/assets.lock.json)、[provenance.json](provenance.json) 与 [第三方声明](../../THIRD_PARTY_NOTICES.md)。自动化协议测试使用隔离外部边界，未执行真实飞书账号验收。

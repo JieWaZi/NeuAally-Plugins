@@ -15,7 +15,7 @@ Catalog presence, download availability, target CLI loading and live account ver
 
 ## Install and use
 
-In a NeuxAlly host supporting catalog v2, open the plugin library, install a plugin for a partner, and complete the declared authorization if required. Chat installation uses the host-discovered `allycli` installation capability and the same use case; it does not edit the user's global Codex or Claude registry.
+In a NeuxAlly host supporting plugin catalogs, open the plugin library, install a plugin for a partner, and complete the declared authorization if required. Chat installation uses the host-discovered `allycli` installation capability and the same use case; it does not edit the user's global Codex or Claude registry.
 
 A system logical plugin is installed once for a partner. It keeps one relationship and logical version while the host selects a fixed implementation for the current CLI. An explicit native reference wins; only a target without a reference may use existing own content. A pure reference entry without an applicable implementation fails explicitly.
 
@@ -75,17 +75,17 @@ A logical entry can refer to reviewed native sources without duplicating their c
 }
 ```
 
-These paths resolve from the verified release source root. The source checkout contains references at those paths; the installation ZIP materializes complete native implementations at the same paths. The application consumes the unchanged v2 archive contract and needs no Git executable. Logical and native versions stay separate; absent upstream versions are not invented.
+These paths resolve from the verified release source root. The source checkout contains references at those paths; the installation ZIP materializes complete native implementations at the same paths. The application consumes the same archive contract and needs no Git executable. Logical and native versions stay separate; absent upstream versions are not invented.
 
 OpenAI GitHub retains its managed app declaration and public OAuth client configuration. Claude GitHub requires `GITHUB_PERSONAL_ACCESS_TOKEN` through protected configuration. Neither model proves the other is available in a host; user tokens must remain private. See [source and license evidence](THIRD_PARTY_NOTICES.md).
 
 ## HTTP discovery, fixed versions and offline snapshots
 
-Use the [latest catalog](https://github.com/JieWaZi/NeuAally-Plugins/releases/latest/download/catalog.json) for discovery or the [fixed v2.0.1 catalog](https://github.com/JieWaZi/NeuAally-Plugins/releases/download/v2.0.1/catalog.json) for reproducibility. A new release is available only after its maintainer publishes it.
+Use the [latest catalog](https://github.com/JieWaZi/NeuAally-Plugins/releases/latest/download/catalog.json) for discovery or the [fixed v0.1.0 catalog](https://github.com/JieWaZi/NeuAally-Plugins/releases/download/v0.1.0/catalog.json) for reproducibility. A new release is available only after its maintainer publishes it.
 
 ```sh
-curl --fail --location https://github.com/JieWaZi/NeuAally-Plugins/releases/download/v2.0.1/catalog.json --output catalog.json
-curl --fail --location https://github.com/JieWaZi/NeuAally-Plugins/releases/download/v2.0.1/github.zip --output github.zip
+curl --fail --location https://github.com/JieWaZi/NeuAally-Plugins/releases/download/v0.1.0/catalog.json --output catalog.json
+curl --fail --location https://github.com/JieWaZi/NeuAally-Plugins/releases/download/v0.1.0/github.zip --output github.zip
 shasum -a 256 github.zip
 ```
 
@@ -138,13 +138,13 @@ Use Node 22+ and Git to build a committed source snapshot. Git reads only this r
 
 ```sh
 npm test
-node scripts/build-catalog.mjs HEAD v2.0.1
+node scripts/build-catalog.mjs HEAD v0.1.0
 ```
 
 The builder materializes fixed upstream trees, validates native manifests, then generates deterministic ZIPs and the catalog in ignored `dist/`. It preserves exact file bytes and executable modes. Identical inputs and verified cache content produce identical ZIPs; dirty working files do not enter the committed snapshot.
 
-For v2.0.1, both logical entries use version `2.0.1`. Feishu's dependency lock still points to the existing immutable v2.0.0 CLI assets; no binary rebuild or re-upload is required. `scripts/build-lark-provider.mjs` remains available for deliberate future dependency changes with its fixed toolchain, public patches and license collection.
+Test releases use `v0.1.x`, starting at `v0.1.0` and incrementing the patch number. Both maintained logical entries use `0.1.0`. Upstream plugin, CLI and protocol versions keep their own meaning. Feishu's dependency lock points to immutable v0.1.0 CLI assets, retaining the binary version and hashes. `scripts/build-lark-provider.mjs` remains available for deliberate future dependency changes with its fixed toolchain, public patches and license collection.
 
-After review and authorization, publish only `dist/catalog.json`, `dist/github.zip` and `dist/feishu-office.zip` to a new v2.0.1 release targeting the exact source commit. Keep previously released assets unchanged. Build checks do not replace real CLI, account, platform or visual acceptance.
+After review and authorization, publish `dist/catalog.json`, `dist/github.zip` and `dist/feishu-office.zip` to a new v0.1.0 test release targeting the exact source commit, explicitly selecting it as latest for default catalog discovery. Include the dependency and license assets required by the lock. Keep previously released assets unchanged. Build checks do not replace real CLI, account, platform or visual acceptance.
 
 The root [MIT license](LICENSE) covers NeuxAlly-authored material. Third-party content and release snapshots retain their actual terms; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
