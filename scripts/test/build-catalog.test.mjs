@@ -12,6 +12,7 @@ async function fixture(t) {
   t.after(() => rm(root, { recursive: true, force: true }));
   const put = async (name, value) => { await mkdir(path.dirname(path.join(root, name)), { recursive: true }); await writeFile(path.join(root, name), typeof value === 'string' || Buffer.isBuffer(value) ? value : JSON.stringify(value)); };
   await put('plugins/example/.codex-plugin/plugin.json', { name: 'example', version: '0.1.0', description: '示例' });
+  await put('plugins/example/provenance.json', { schemaVersion: 1, upstream: { author: 'Example contributors', repository: 'https://github.com/example/example', license: 'MIT', commit: 'a'.repeat(40), tag: 'v1.2.3', distribution: { mode: 'vendored-source' } }, wrapper: { maintainer: 'NeuxAlly contributors', repository: 'https://github.com/JieWaZi/NeuxAlly-Plugins', license: 'MIT', changes: ['Maintained package'] }, dependencies: [], assets: [] });
   await put('plugins/example/.mcp.json', { mcpServers: { example: { type: 'http', url: 'https://example.com/mcp' } } });
   await put('plugins/example/assets/reference.txt', 'keep complete package files\n');
   await put('plugins/example/.neuxally/auth/authorize', '#!/bin/sh\nexit 0\n');
@@ -36,7 +37,7 @@ test('构建固定提交的完整可重现 ZIP，记录摘要并保留执行位'
   assert.equal(catalog.schemaVersion, 2);
   assert.equal(catalog.entries.length, 1);
   assert.equal(catalog.entries[0].sourceCommit, sourceCommit);
-  assert.equal(catalog.entries[0].archiveURL, 'https://github.com/JieWaZi/NeuAally-Plugins/releases/download/v0.1.0/example.zip');
+  assert.equal(catalog.entries[0].archiveURL, 'https://github.com/JieWaZi/NeuxAlly-Plugins/releases/download/v0.1.0/example.zip');
   assert.equal(catalog.entries[0].packagePath, 'plugins/example');
   assert.equal(catalog.entries[0].archiveSHA256, createHash('sha256').update(archive).digest('hex'));
   const server = createServer(async (request, response) => { try { response.end(await readFile(path.join(out, path.basename(request.url)))); } catch { response.writeHead(404).end(); } });
@@ -95,6 +96,9 @@ test('固定快照生成安装前双语展示和PNG图标，并保留两种READM
   await f.put('plugins/example/.codex-plugin/plugin.json', { name: 'example', version: '0.1.0', description: 'Review repository changes.', interface: { displayName: 'Example', shortDescription: 'Review repository changes.', logo: './assets/icon.png', composerIcon: './assets/icon.png' } });
   await f.put('plugins/example/.neuxally/presentation.json', { displayNames: { en: 'Example', 'zh-CN': '示例' }, localizedDescriptions: { en: 'Review repository changes.', 'zh-CN': '检查仓库变更。' } });
   await f.put('plugins/example/assets/icon.png', presentationPNG);
+  const provenance = JSON.parse(await readFile(path.join(f.root, 'plugins/example/provenance.json'), 'utf8'));
+  provenance.assets = [{ path: 'assets/icon.png', sourceURL: 'https://example.com/icon.png', sha256: createHash('sha256').update(presentationPNG).digest('hex'), license: 'Example brand terms', attribution: 'Example' }];
+  await f.put('plugins/example/provenance.json', provenance);
   await f.put('plugins/example/README.md', '# Example\nReview repository changes.\n');
   await f.put('plugins/example/README.zh-CN.md', '# 示例\n检查仓库变更。\n');
   const sourceCommit = f.commit();
@@ -154,4 +158,20 @@ test('拒绝通过符号链接读取图标', async t => {
   await symlink('real.png', path.join(f.root, 'plugins/example/assets/icon.png'));
   const sourceCommit = f.commit(); const { buildCatalog } = await import('../build-catalog.mjs');
   await assert.rejects(buildCatalog({ root: f.root, out: path.join(f.root, 'out'), sourceCommit }), /mode|icon/i);
+});
+
+// 缺失或伪造来源不能发布，且不破坏上一次完成的目录。
+test('缺失或异构来源被构建入口拒绝，完整包保留统一来源', async t => {
+  const f = await fixture(t); const sourceCommit = f.commit();
+  const { buildCatalog } = await import('../build-catalog.mjs'); const out = path.join(f.root, 'out');
+  const catalog = await buildCatalog({ root: f.root, out, sourceCommit });
+  const archive = await readFile(path.join(out, 'example.zip'));
+  const unpack = path.join(f.root, 'provenance-unpack'); await mkdir(unpack); execFileSync('unzip', ['-q', path.join(out, 'example.zip'), '-d', unpack]);
+  assert.equal(JSON.parse(await readFile(path.join(unpack, 'plugins/example/provenance.json'), 'utf8')).upstream.tag, 'v1.2.3');
+  await rm(path.join(f.root, 'plugins/example/provenance.json'));
+  await assert.rejects(buildCatalog({ root: f.root, out, sourceCommit: f.commit() }), /provenance/);
+  await f.put('plugins/example/provenance.json', { packaging: { author: 'Wrong shape' } });
+  await assert.rejects(buildCatalog({ root: f.root, out, sourceCommit: f.commit() }), /provenance/);
+  assert.deepEqual(await readFile(path.join(out, 'example.zip')), archive);
+  assert.deepEqual(JSON.parse(await readFile(path.join(out, 'catalog.json'), 'utf8')), catalog);
 });

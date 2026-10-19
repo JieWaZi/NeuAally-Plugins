@@ -1,3 +1,4 @@
+import { validateProvenance } from './provenance.mjs';
 import { catalogPresentation } from './presentation.mjs';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -5,7 +6,7 @@ import { cp, mkdir, mkdtemp, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const repository = 'https://github.com/JieWaZi/NeuAally-Plugins';
+const repository = 'https://github.com/JieWaZi/NeuxAlly-Plugins';
 const safePath = value => typeof value === 'string' && value.length > 0 && !value.includes('\\') && !value.includes(':') && value.split('/').every(part => part && part !== '.' && part !== '..' && !part.includes('\0'));
 
 // 构建只读取 Git 对象，工作区改动与文件时间不影响指定提交的产物。
@@ -55,6 +56,9 @@ export async function buildCatalog({ root, out, sourceCommit, tag = 'v0.1.0' }) 
     const manifest = JSON.parse(read(filename));
     if (manifest.name !== key || typeof manifest.version !== 'string' || !manifest.version || typeof manifest.description !== 'string') throw new Error(`invalid logical manifest: ${filename}`);
     const presentation = catalogPresentation({ manifest, packagePath, has: name => tree.has(name), read });
+    const provenancePath = `${packagePath}/provenance.json`;
+    if (!tree.has(provenancePath)) throw new Error(`missing provenance: ${provenancePath}`);
+    validateProvenance({ data: JSON.parse(read(provenancePath)), packagePath, manifest, read });
     const integrationPath = `${packagePath}/.neuxally/integration.json`;
     if (tree.has(integrationPath) && Object.hasOwn(JSON.parse(read(integrationPath)), 'nativePlugins')) throw new Error('canonical package cannot use native references');
     const selected = [...tree.keys()].filter(name => ['LICENSE', 'THIRD_PARTY_NOTICES.md'].includes(name) || name.startsWith('patches/') || name.startsWith(`${packagePath}/`)).sort();

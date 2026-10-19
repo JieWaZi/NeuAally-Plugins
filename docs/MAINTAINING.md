@@ -8,6 +8,8 @@ The repository [development guide](../README.md) owns the canonical package layo
 
 Maintain each `plugins/<key>` package's `.codex-plugin/plugin.json` in English. Keep identity and version there; set the supported `interface.displayName`, `shortDescription`, `developerName`, `logo` and `composerIcon` fields. Use the actual capability brand for `developerName` (GitHub / 飞书), and the official capability project for `repository`. Preserve the packaging author and source/license evidence separately; do not claim official authorship of our wrapper. Visual paths are package-relative `./assets/` paths, as described in the [official packaging documentation](https://developers.openai.com/plugins/build/plugins).
 
+The plugin information panel reads only `provenance.upstream`: developer from `author`, version from `tag` then `version`, license from `license`, and source from `repository`. Feishu therefore shows `Lark Suite CLI contributors` and `v1.0.98`, with no second upstream-version field. `manifest.version` (`0.1.x`) and the manifest author remain the truthful internal maintained package identity. Hosted GitHub MCP has no fixed service version; do not substitute its authorization CLI version. Both packages follow the same [provenance contract](PROVENANCE.md) and [JSON schema](../schemas/provenance.schema.json).
+
 Use `README.md` for English and `README.zh-CN.md` for Simplified Chinese, without language-switch links. The host selects the corresponding document and falls back to English when a translation is absent.
 
 The optional package-local `.neuxally/presentation.json` contains only translated display text:

@@ -21,7 +21,7 @@ The root is a library and marketplace, not a single plugin, so it has no root si
 
 NeuxAlly installs plugins only from this maintained library’s published HTTP catalog and adapts each standard package to the selected agent. It provides no plugin upload, local-directory import, or ZIP import. Native plugin installation requested in a conversation belongs to the current Codex or Claude Code environment, shared with the same external CLI. Those native installations, enablement settings, and authentication stay under the CLI’s ownership and are not registered or managed as NeuxAlly resources. Direct use of the local marketplace or package follows the target CLI’s capabilities; Codex does not interpret NeuxAlly-specific authentication declarations automatically.
 
-The manifest's `repository` and `interface.developerName` identify the official capability project and brand: GitHub / `github/github-mcp-server`, and 飞书 / `larksuite/cli`. `author` and provenance separately identify NeuxAlly contributors as authors of the package wrapper and bridge. Official service/skill authorship is not authorship of this packaging, and brand attribution is not official endorsement. See [third-party notices](THIRD_PARTY_NOTICES.md).
+The manifest's `repository` and `interface.developerName` identify the official capability project and brand: GitHub / `github/github-mcp-server`, and 飞书 / `larksuite/cli`. `author` identifies NeuxAlly contributors as authors of the package wrapper and bridge; uniform `provenance.upstream` records the actual business capability author, version, license and repository used by the plugin information panel. Official service/skill authorship is not authorship of this packaging, and brand attribution is not official endorsement. See [third-party notices](THIRD_PARTY_NOTICES.md).
 
 ```mermaid
 flowchart LR
@@ -46,7 +46,7 @@ flowchart LR
 
 ## Maintaining a standard package
 
-Create `plugins/<key>/.codex-plugin/plugin.json` with standard identity, version, description, truthful author and license. Declare actual skills and MCP components using the [official packaging fields](https://developers.openai.com/plugins/build/plugins). Preserve third-party source, scripts, relative references and executable modes. Do not add a second hand-maintained component index or native source-reference manifest.
+Create `plugins/<key>/.codex-plugin/plugin.json` with standard identity, version, description, truthful author and license. Declare actual skills and MCP components using the [official packaging fields](https://developers.openai.com/plugins/build/plugins). Preserve third-party source, scripts, relative references and executable modes. Copy the reviewed upstream content needed by this package and maintain it locally, with actual licenses and modifications recorded in the [uniform provenance contract](docs/PROVENANCE.md). Do not add a second hand-maintained component index or native source-reference manifest.
 
 Each plugin's English and Chinese README describes only its own capabilities, access requirements and practical uses. It contains no host roles, installation flow, chat prompts or language navigation; the host selects the document by system language. Standard English interface fields, optional localized display text and static PNG assets follow the [presentation maintenance guide](docs/MAINTAINING.md). A package without `.neuxally/` remains a standard package.
 
@@ -95,7 +95,7 @@ Provider programs are independent digest-locked dependencies downloaded by each 
 
 ## HTTP catalog and complete snapshots
 
-Use the [latest catalog](https://github.com/JieWaZi/NeuAally-Plugins/releases/latest/download/catalog.json) or [fixed v0.1.0 catalog](https://github.com/JieWaZi/NeuAally-Plugins/releases/download/v0.1.0/catalog.json). Each `{schemaVersion:2,entries:[...]}` entry records `key`, full `sourceCommit`, `archiveURL`, `archiveSHA256`, `packagePath: plugins/<key>`, standard `name`, `version`, English `description` and `format: codex`. Optional localized maps and a validated embedded icon support presentation before package download; components are read from the actual package.
+Use the [latest catalog](https://github.com/JieWaZi/NeuxAlly-Plugins/releases/latest/download/catalog.json) or [fixed v0.1.0 catalog](https://github.com/JieWaZi/NeuxAlly-Plugins/releases/download/v0.1.0/catalog.json). Each `{schemaVersion:2,entries:[...]}` entry records `key`, full `sourceCommit`, `archiveURL`, `archiveSHA256`, `packagePath: plugins/<key>`, standard `name`, `version`, English `description` and `format: codex`. Optional localized maps and a validated embedded icon support presentation before package download; components are read from the actual package.
 
 A ZIP contains its complete standard package, applicable local Codex index, source/license evidence and public patches. No upstream Git or HTTP materialization is required by installation or ordinary catalog builds. Separate business services and first-use provider dependencies still require network access. Clients verify the selected archive digest before extraction. Installed snapshots remain identified by their source commit and digest when test-release assets change.
 
@@ -108,7 +108,7 @@ npm test
 node scripts/build-catalog.mjs HEAD v0.1.0
 ```
 
-The builder validates canonical packages and local assets, produces deterministic ZIPs and catalog, and replaces its output after validation. The CLI replaces the `dist` output directory while preserving `dist/providers`; use the exported `buildCatalog({root,out,sourceCommit})` with a separate output directory when existing unrelated receipts must be retained.
+The builder validates canonical packages, the shared provenance schema, dependency locks and local asset hashes, produces deterministic ZIPs and catalog, and replaces its output after validation. The CLI replaces the `dist` output directory while preserving `dist/providers`; use the exported `buildCatalog({root,out,sourceCommit})` with a separate output directory when existing unrelated receipts must be retained.
 
 Provider rebuilds are deliberate independent operations, not a prerequisite for catalog builds:
 
@@ -117,7 +117,7 @@ node scripts/build-github-provider.mjs
 node scripts/build-lark-provider.mjs
 ```
 
-Each fixed-source provider build verifies source and isolation tests, cross-compiles six platforms and collects actual dependency license texts. Lark assets remain unchanged when updating GitHub. Upstream CLI versions and protocol/schema versions have their own meaning; both own packages and the current test tag remain `0.1.0` / `v0.1.0`.
+Each fixed-source provider build verifies source and isolation tests, cross-compiles six platforms and collects actual dependency license texts. Lark assets remain unchanged when updating GitHub. Protocol/schema versions and internal package identities have their own meaning: the current internal package/test release identity remains `0.1.0` / `v0.1.0`. User-facing version and authorship come directly from `provenance.upstream`; Feishu shows `v1.0.98`, while an unpinned hosted MCP service declares no fixed version. Fixed references record verified inputs, not an unchecked claim that every upstream dependency is latest.
 
 With explicit authorization, a verified new snapshot may replace the fixed test tag and corresponding release assets. Publish needed provider binaries and notices before the catalog/ZIPs, then verify the final tag target, sourceCommit and all asset digests over HTTP. Never silently replace an already installed snapshot. Automated tests, cross compilation and publication do not substitute for real account, platform, runtime or UI acceptance.
 

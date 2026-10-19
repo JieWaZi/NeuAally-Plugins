@@ -1,17 +1,42 @@
 {
+  "schemaVersion": 1,
   "upstream": {
+    "author": "Lark Suite CLI contributors",
     "repository": "https://github.com/larksuite/cli",
+    "license": "MIT",
     "commit": "ac81f5056ab88f37d581d25916f3dab85abfca76",
     "tag": "v1.0.98",
-    "license": "MIT",
-    "author": "Lark Suite CLI contributors"
+    "distribution": {
+      "mode": "vendored-source"
+    }
   },
   "wrapper": {
     "maintainer": "NeuxAlly contributors",
+    "repository": "https://github.com/JieWaZi/NeuxAlly-Plugins",
+    "license": "MIT",
     "changes": [
-      "自有 Codex 标准清单与 NeuxAlly 声明驱动授权桥接",
-      "官方 skills 目录和相对引用保持原样",
-      "固定 CLI 的私有 profile/keychain 隔离补丁与资产锁在本仓库公开"
+      "Maintained standard manifest and declaration-driven authorization bridge",
+      "Upstream skills and relative references preserved unchanged",
+      "Fixed-source CLI profile and keychain isolation patches and asset locks published in this repository"
     ]
-  }
+  },
+  "dependencies": [
+    {
+      "name": "lark-cli",
+      "repository": "https://github.com/larksuite/cli",
+      "commit": "ac81f5056ab88f37d581d25916f3dab85abfca76",
+      "version": "1.0.98-neuxally.1",
+      "license": "MIT",
+      "lock": ".neuxally/auth/assets.lock.json"
+    }
+  ],
+  "assets": [
+    {
+      "path": "assets/icon.png",
+      "sourceURL": "https://p1-hera.feishucdn.com/tos-cn-i-jbbdkfciu3/84a9f036fe2b44f99b899fff4beeb963~tplv-jbbdkfciu3-image:100:100.image",
+      "sha256": "a8b56475a902623937409d0fdc68b4b91040aa6ce34cd71e7870acf0cc8a62d9",
+      "license": "Feishu brand asset; no separate open-source license found",
+      "attribution": "Feishu; copied unchanged from the application brand asset sourced from the official website"
+    }
+  ]
 }

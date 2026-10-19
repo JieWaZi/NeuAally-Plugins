@@ -21,7 +21,7 @@
 
 NeuxAlly 只通过本库发布的 HTTP 目录为伙伴安装插件，并将同一个标准包适配到所选智能体。系统不提供上传、本地目录或 ZIP 导入，也不收集和管理用户原生 CLI 的第三方插件。用户在聊天中要求安装原生插件时，由当前 Codex 或 Claude Code 使用与外部相同 CLI 共用的原生插件环境处理；这类安装、启停和认证归 CLI 管理，不登记为 NeuxAlly 资源。直接标准使用可读取根本地 marketplace 或包内标准内容，具体能力与授权方式以 CLI 支持范围为准；Codex 不会自动解释 NeuxAlly 专属授权声明。
 
-清单 `repository` 与 `interface.developerName` 指向官方业务能力项目和品牌：GitHub / `github/github-mcp-server`，飞书 / `larksuite/cli`。`author` 和来源记录分别如实说明包内封装与桥接由 NeuxAlly contributors 编写。官方服务或技能作者不等同本封装作者，品牌署名也不代表官方背书。见[第三方声明](THIRD_PARTY_NOTICES.md)。
+清单 `repository` 与 `interface.developerName` 指向官方业务能力项目和品牌：GitHub / `github/github-mcp-server`，飞书 / `larksuite/cli`。`author` 如实说明包内封装与桥接由 NeuxAlly contributors 编写；统一 `provenance.upstream` 记录插件信息面板读取的实际业务能力作者、版本、许可与仓库。官方服务或技能作者不等同本封装作者，品牌署名也不代表官方背书。见[第三方声明](THIRD_PARTY_NOTICES.md)。
 
 ```mermaid
 flowchart LR
@@ -46,7 +46,7 @@ flowchart LR
 
 ## 维护标准包
 
-在 `plugins/<key>/.codex-plugin/plugin.json` 定义标准身份、版本、描述及真实作者与许可。按[官方打包字段](https://developers.openai.com/plugins/build/plugins)声明真实 Skills 和 MCP，保留第三方源码、脚本、相对引用与执行位。不增加手工维护的第二份组件索引或原生来源引用清单。
+在 `plugins/<key>/.codex-plugin/plugin.json` 定义标准身份、版本、描述及真实作者与许可。按[官方打包字段](https://developers.openai.com/plugins/build/plugins)声明真实 Skills 和 MCP，保留第三方源码、脚本、相对引用与执行位。将审核后所需上游内容复制到包内并本地维护，在[统一来源规范](docs/PROVENANCE.zh-CN.md)中说明真实许可及改动。不增加手工维护的第二份组件索引或原生来源引用清单。
 
 各插件中英文 README 只介绍插件自身能力、权限前提和实用场景，不写宿主角色、安装流程、聊天引导或语言导航，由宿主按系统语言读取。默认英文展示字段、可选本地化文字和静态 PNG 遵守[展示维护指南](docs/MAINTAINING.zh-CN.md)。没有 `.neuxally/` 仍是标准包。
 
@@ -95,7 +95,7 @@ sequenceDiagram
 
 ## HTTP 目录与完整快照
 
-使用[最新目录](https://github.com/JieWaZi/NeuAally-Plugins/releases/latest/download/catalog.json)或[固定 v0.1.0 目录](https://github.com/JieWaZi/NeuAally-Plugins/releases/download/v0.1.0/catalog.json)。`{schemaVersion:2,entries:[...]}` 每项记录 `key`、完整 `sourceCommit`、`archiveURL`、`archiveSHA256`、`packagePath: plugins/<key>`、标准 `name`、`version`、英文 `description` 和 `format: codex`。可选本地化文字与安全内嵌图标支持安装前展示，组件组成从真实包读取。
+使用[最新目录](https://github.com/JieWaZi/NeuxAlly-Plugins/releases/latest/download/catalog.json)或[固定 v0.1.0 目录](https://github.com/JieWaZi/NeuxAlly-Plugins/releases/download/v0.1.0/catalog.json)。`{schemaVersion:2,entries:[...]}` 每项记录 `key`、完整 `sourceCommit`、`archiveURL`、`archiveSHA256`、`packagePath: plugins/<key>`、标准 `name`、`version`、英文 `description` 和 `format: codex`。可选本地化文字与安全内嵌图标支持安装前展示，组件组成从真实包读取。
 
 ZIP 包含完整标准包、本地 Codex 索引、来源/许可证据与公开补丁。安装与日常目录构建均不依赖上游 Git 或 HTTP 还原。独立业务服务和首次供应商依赖仍需联网。客户端解包前核对目录所选归档摘要；测试发布资产变更时，已安装快照仍由原来源提交和摘要固定。
 
@@ -108,7 +108,7 @@ npm test
 node scripts/build-catalog.mjs HEAD v0.1.0
 ```
 
-构建器核验标准包和本地资产，生成确定性 ZIP 与目录，校验完成后替换输出。CLI 会替换 `dist` 输出目录并保留 `dist/providers`；需要保留其他无关回执时，使用导出的 `buildCatalog({root,out,sourceCommit})` 指定独立输出目录。
+构建器核验标准包、统一来源 schema、依赖锁与本地资产摘要，生成确定性 ZIP 与目录，校验完成后替换输出。CLI 会替换 `dist` 输出目录并保留 `dist/providers`；需要保留其他无关回执时，使用导出的 `buildCatalog({root,out,sourceCommit})` 指定独立输出目录。
 
 供应商重构建是独立且明确的操作，不是目录构建前置：
 
@@ -117,7 +117,7 @@ node scripts/build-github-provider.mjs
 node scripts/build-lark-provider.mjs
 ```
 
-固定源码构建核验归档与隔离测试，完成六平台交叉编译，并收集真实依赖许可原文。更新 GitHub 不重建 Lark 资产。上游 CLI、协议和 schema 版本保留自身含义；自有包及当前测试标签始终为 `0.1.0` / `v0.1.0`。
+固定源码构建核验归档与隔离测试，完成六平台交叉编译，并收集真实依赖许可原文。更新 GitHub 不重建 Lark 资产。协议/schema 版本与内部包身份含义独立；当前内部包／测试发布身份仍是 `0.1.0` / `v0.1.0`。面向用户的版本与作者直接读取 `provenance.upstream`，飞书显示 `v1.0.98`，未固定的托管 MCP 不声明服务版本。固定引用表示核验过的输入，不代表所有依赖均为上游最新版本。
 
 明确获准后，可用核验后的新快照替换固定测试标签及对应资产。先发布需要的供应商二进制与许可，再发布目录/ZIP，最后经 HTTP 同时核对标签指向、sourceCommit 和所有资产摘要。不能静默替换已有安装快照。自动化测试、交叉编译和发布不代替真实账号、平台、智能体或界面验收。
 
