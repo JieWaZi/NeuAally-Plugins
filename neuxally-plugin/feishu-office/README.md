@@ -1,7 +1,5 @@
 # Feishu Office
 
-[English](README.md) | [简体中文](README.zh-CN.md)
-
 Create and organize Feishu documents, manage table records, arrange calendar events and track tasks.
 
 ## Capabilities

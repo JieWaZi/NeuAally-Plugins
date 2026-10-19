@@ -1,7 +1,5 @@
 # GitHub
 
-[English](README.md) | [简体中文](README.zh-CN.md)
-
 Search repository code, follow issues and pull requests, and review changes on GitHub.
 
 ## Capabilities

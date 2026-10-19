@@ -83,17 +83,17 @@ OpenAI GitHub retains its managed app declaration and public OAuth client config
 
 ## HTTP discovery, fixed versions and offline snapshots
 
-Use the [latest catalog](https://github.com/JieWaZi/NeuAally-Plugins/releases/latest/download/catalog.json) for discovery or the [fixed v0.1.1 catalog](https://github.com/JieWaZi/NeuAally-Plugins/releases/download/v0.1.1/catalog.json) for reproducibility. A new release is available only after its maintainer publishes it.
+Use the [latest catalog](https://github.com/JieWaZi/NeuAally-Plugins/releases/latest/download/catalog.json) for discovery or the [fixed v0.1.0 catalog](https://github.com/JieWaZi/NeuAally-Plugins/releases/download/v0.1.0/catalog.json) for reproducibility. A new release is available only after its maintainer publishes it.
 
 ```sh
-curl --fail --location https://github.com/JieWaZi/NeuAally-Plugins/releases/download/v0.1.1/catalog.json --output catalog.json
-curl --fail --location https://github.com/JieWaZi/NeuAally-Plugins/releases/download/v0.1.1/github.zip --output github.zip
+curl --fail --location https://github.com/JieWaZi/NeuAally-Plugins/releases/download/v0.1.0/catalog.json --output catalog.json
+curl --fail --location https://github.com/JieWaZi/NeuAally-Plugins/releases/download/v0.1.0/github.zip --output github.zip
 shasum -a 256 github.zip
 ```
 
 Compare the downloaded digest with the selected catalog entry before extraction. The transfer index remains `{schemaVersion:2,entries:[...]}` with `key`, full `sourceCommit`, immutable `archiveURL`, `archiveSHA256`, `packagePath`, `name`, logical `version`, `description` and `format: codex`. Optional `displayNames`, `localizedDescriptions` and validated embedded `icon` provide localized presentation before downloading a package. It is directory metadata, not another plugin manifest.
 
-Search reads only catalog metadata; installation downloads the chosen complete ZIP. An offline installation snapshot contains the logical entry, all referenced native files, integrity/license evidence and applicable local native indexes. It can be mirrored without making clients resolve upstream Git refs. Separate services and first-use CLI dependencies can still require network access and authorization. Installed content stays fixed when `latest` advances; publish new versions instead of replacing released assets.
+Search reads only catalog metadata; installation downloads the chosen complete ZIP. An offline installation snapshot contains the logical entry, all referenced native files, integrity/license evidence and applicable local native indexes. It can be mirrored without making clients resolve upstream Git refs. Separate services and first-use CLI dependencies can still require network access and authorization. Installed content is identified by its source commit and archive digest; a published test asset replacement does not silently change an installed snapshot.
 
 ## Authorization without provider branches
 
@@ -140,13 +140,13 @@ Use Node 22+ and Git to build a committed source snapshot. Git reads only this r
 
 ```sh
 npm test
-node scripts/build-catalog.mjs HEAD v0.1.1
+node scripts/build-catalog.mjs HEAD v0.1.0
 ```
 
 The builder materializes fixed upstream trees, validates native manifests, then generates deterministic ZIPs and the catalog in ignored `dist/`. It preserves exact file bytes and executable modes. Identical inputs and verified cache content produce identical ZIPs; dirty working files do not enter the committed snapshot.
 
-Test releases use `v0.1.x`, starting at `v0.1.0` and incrementing the patch number. Both maintained logical entries use `0.1.1`. Upstream plugin, CLI and protocol versions keep their own meaning. Feishu's dependency lock points to immutable v0.1.0 CLI assets, retaining the binary version and hashes. `scripts/build-lark-provider.mjs` remains available for deliberate future dependency changes with its fixed toolchain, public patches and license collection.
+The current test release retains the fixed tag `v0.1.0`; an explicitly approved update may replace its tag and assets with a newly verified source snapshot. Both maintained logical entries use `0.1.0`. Upstream plugin, CLI and protocol versions keep their own meaning. Feishu's dependency lock points to immutable v0.1.0 CLI assets, retaining the binary version and hashes. `scripts/build-lark-provider.mjs` remains available for deliberate future dependency changes with its fixed toolchain, public patches and license collection.
 
-After review and authorization, publish `dist/catalog.json`, `dist/github.zip` and `dist/feishu-office.zip` to a new v0.1.1 test release targeting the exact source commit, explicitly selecting it as latest for default catalog discovery. The CLI dependency and license assets remain at the existing immutable v0.1.0 release; this update publishes only the catalog and two plugin ZIPs. Keep previously released assets unchanged. Build checks do not replace real CLI, account, platform or visual acceptance.
+After review and authorization, publish `dist/catalog.json`, `dist/github.zip` and `dist/feishu-office.zip` to the v0.1.0 test release targeting the exact source commit, explicitly selecting it as latest for default catalog discovery. The CLI dependency and license assets remain at the existing immutable v0.1.0 release; this update publishes only the catalog and two plugin ZIPs. Replace test release assets only with explicit authorization, and verify the resulting catalog, archive digests and exact tag target together. Build checks do not replace real CLI, account, platform or visual acceptance.
 
 The root [MIT license](LICENSE) covers NeuxAlly-authored material. Third-party content and release snapshots retain their actual terms; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

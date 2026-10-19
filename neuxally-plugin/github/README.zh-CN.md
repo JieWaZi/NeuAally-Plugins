@@ -1,7 +1,5 @@
 # GitHub
 
-[English](README.md) | [简体中文](README.zh-CN.md)
-
 检索 GitHub 仓库代码、跟进议题和拉取请求，协助代码审查与变更分析。
 
 ## 主要能力

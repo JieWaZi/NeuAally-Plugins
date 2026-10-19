@@ -84,7 +84,7 @@ test('仅来源描述经 HTTP 构建完整原生 ZIP 和索引；离线重建一
   const sourceCommit = f.commit(); const out = path.join(f.root, 'out'); const { buildCatalog } = await import('../build-catalog.mjs');
   const fetcher = async url => new Response(content.get(String(url).split('/plugins/example/')[1]));
   const catalog = await buildCatalog({ root: f.root, out, sourceCommit, fetcher });
-  assert.match(catalog.entries[0].archiveURL, /\/v0\.1\.1\/example\.zip$/);
+  assert.match(catalog.entries[0].archiveURL, /\/v0\.1\.0\/example\.zip$/);
   const archive = await readFile(path.join(out, 'example.zip'));
   const unpack = path.join(f.root, 'unpack-http'); await mkdir(unpack); execFileSync('unzip', ['-q', path.join(out, 'example.zip'), '-d', unpack]);
   assert.deepEqual(await readFile(path.join(unpack, 'codex-plugins/example/.codex-plugin/plugin.json')), content.get('.codex-plugin/plugin.json'));

@@ -8,7 +8,7 @@ The repository [development guide](../README.md) owns source registration, nativ
 
 Maintain each own package's `.codex-plugin/plugin.json` in English. Keep identity and version there; set the supported `interface.displayName`, `shortDescription`, `developerName`, `logo` and `composerIcon` fields. Use the public developer name `NeuxAlly` while preserving truthful original authorship and licenses. Visual paths are package-relative `./assets/` paths, as described in the [official packaging documentation](https://developers.openai.com/plugins/build/plugins).
 
-Use `README.md` for English and `README.zh-CN.md` for Simplified Chinese, with language-switch links. The host selects the corresponding document and falls back to English when a translation is absent.
+Use `README.md` for English and `README.zh-CN.md` for Simplified Chinese, without language-switch links. The host selects the corresponding document and falls back to English when a translation is absent.
 
 The optional package-local `.neuxally/presentation.json` contains only translated display text:
 
@@ -30,7 +30,7 @@ The release builder derives optional `displayNames` and `localizedDescriptions` 
 
 For release icons, use a static noninterlaced 8-bit PNG under `./assets/`, at most 128 KiB and 2048×2048 pixels. The builder validates the signature, chunk checksums, dimensions, compressed pixels and scanline filters before emitting a canonical `data:image/png;base64,...` URI. It rejects external URLs, unsafe paths, symlinks, SVG and malformed or oversized data. The host also validates catalog icons before presenting them; its broader supported image set does not expand the release policy.
 
-Catalog discovery needs no package download or external icon request. The complete ZIP retains the PNG, localized presentation file and both READMEs. All are read from the fixed source commit; dirty workspace files cannot alter that release. Rebuild and verify with `npm test` and `node scripts/build-catalog.mjs HEAD v0.1.1` after committing the reviewed changes.
+Catalog discovery needs no package download or external icon request. The complete ZIP retains the PNG, localized presentation file and both READMEs. All are read from the fixed source commit; dirty workspace files cannot alter that release. Rebuild and verify with `npm test` and `node scripts/build-catalog.mjs HEAD v0.1.0` after committing the reviewed changes.
 
 ## Existing integrations
 
