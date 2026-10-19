@@ -1,44 +1,34 @@
 # 第三方来源与许可
 
-本仓库根 MIT 许可仅覆盖 NeuxAlly 自行编写的材料，不改变下列第三方文件的许可、作者与商标归属。目录收录和源码可分发不证明远程服务授权或目标宿主兼容性。
+本仓库根 MIT 许可只覆盖 NeuxAlly 自行编写的标准包封装、桥接与构建材料，不改变官方技能、CLI 依赖或商标的作者及许可。我们自行维护完整 OpenAI/Codex 标准包，官方开源项目与示例仅作为能力来源或封装参考，不维护两套原生来源引用。展示中的官方品牌/仓库和本仓库的实际包装作者分别说明，不冒充官方发布。
 
-## Codex GitHub 原生来源
+## GitHub MCP 与自有封装
 
-- 来源：[openai/plugins 固定目录](https://github.com/openai/plugins/tree/0722921d5542fc593105c27bd52630babd8b8c2a/plugins/github)，提交 `0722921d5542fc593105c27bd52630babd8b8c2a`，原生包版本 `0.1.12`。
-- 原作者：上游原生清单声明为 OpenAI；GitHub 名称、图标及服务仍归各自权利人。
-- 源码库仅保存 [来源与完整性锁](codex-plugins/github/source.json)，包括上游地址、固定提交、包路径、真实 Git 子树及逐文件 SHA-256/模式。发布构建经 HTTP 还原全部原生文件，README、apps、MCP OAuth、清单和图标在 ZIP 中按字节保留。
-- 上游原生清单声明 `MIT`，但该固定快照的包目录及仓库根未提供 LICENSE 文件。如实保留证据缺口，不使用其他插件或自造文本充当本包原始许可。
-- 上游 README 明确 OAuth client ID/secret 为有意公开的公共客户端资料；用户 access/refresh token 仍须保密。托管连接和远程服务实现未由本仓库分发。
+- 业务服务：[github/github-mcp-server](https://github.com/github/github-mcp-server)，官方托管地址 `https://api.githubcopilot.com/mcp/`。本包只声明远程 MCP 地址，不分发其服务实现，也不虚构服务端固定版本。
+- `plugins/github` 的标准清单、MCP 配置和声明驱动 OAuth 桥接由 NeuxAlly contributors 维护，根 MIT 许可适用这些自编材料。设备流解释复用本项目既有应用授权实现的算法；不是 GitHub 官方发布的插件封装。
+- 元数据 `developerName: GitHub` 与 repository 指向业务能力的实际品牌与官方项目；清单 author 和 [provenance](plugins/github/provenance.json) 如实记录实际封装者。
 
-## Claude GitHub 原生来源
+## GitHub CLI 隔离依赖
 
-- 来源：[anthropics/claude-plugins-official 固定目录](https://github.com/anthropics/claude-plugins-official/tree/ea10b213686c90bb1984b2016937310e05336cf3/external_plugins/github)，提交 `ea10b213686c90bb1984b2016937310e05336cf3`。
-- 原生清单原作者为 GitHub，未声明版本；逻辑插件版本不能充当上游版本。
-- 源码库保存 [来源与完整性锁](claude-plugins/github/source.json) 及该提交仓库根的 [Apache-2.0 LICENSE 原文](claude-plugins/github/LICENSE.upstream)，不长期提交原生文件副本。发布时 HTTP 还原原始原生清单和 MCP 文件，不改写其内容。
-- 包目录没有单独 LICENSE，不把远程 GitHub MCP 服务本身的许可等同于这份声明。
+- 上游：[cli/cli](https://github.com/cli/cli/tree/fc4b137cdef0a6bd28fd461b7cf9c84a5812a8cd)，固定提交 `fc4b137cdef0a6bd28fd461b7cf9c84a5812a8cd`，原版本 `2.102.0`。
+- 隔离构建 `2.102.0-neuxally.2`，不是未修改的官方发行二进制。源码归档、固定 Go 工具链、六平台资产、大小/摘要和补丁证据记录在 [资产锁](plugins/github/.neuxally/auth/assets.lock.json)。
+- [原始 MIT 许可](patches/LICENSE.github-cli) 保留上游版权。[公开补丁](patches/github-keyring-isolation.patch) 将底层 Set/Get/Delete 服务绑定已存在的私有 GH_CONFIG_DIR 规范路径 SHA-256；没有合法目录时拒绝钥匙串访问，覆盖登录迁移和退出路径。[回归](patches/github-keyring-isolation_test.go) 走上游内存钥匙串，不访问测试机器真实存储。
+- 完整第三方依赖与 Go runtime 许可原文收集于 [CLI 声明](plugins/github/.neuxally/auth/THIRD_PARTY_NOTICES.cli.txt)，同文作为独立 Release 资产交付。部分模块没有独立 LICENSE 时保留实际可得的原始说明并披露缺口，不补造许可。
+- [固定构建来源记录](patches/github-cli-provenance.json)。二进制只作为发布依赖资产，运行时按摘要下载至插件私有目录，不使用用户全局 gh 或全局身份。
 
-## 飞书办公与 Lark Suite CLI
+## 飞书技能与 Lark CLI
 
-- 上游：[larksuite/cli](https://github.com/larksuite/cli/tree/ac81f5056ab88f37d581d25916f3dab85abfca76)，固定提交 `ac81f5056ab88f37d581d25916f3dab85abfca76`，版本 `1.0.98`。
-- 署名：Lark Suite CLI contributors；源码版权声明包含 Lark Technologies Pte. Ltd.，按原文件保留。
-- 许可：[原始 MIT 声明](neuxally-plugin/feishu-office/LICENSE.larksuite-cli)。完整官方 skills 及其相对引用保持原样，NeuxAlly 自行维护标准清单与声明驱动授权桥接。
-- 受管 CLI 构建版本 `1.0.98-neuxally.1`；固定源码归档摘要、Go 工具链、六个平台可执行文件摘要和下载 URL 在 [资产锁](neuxally-plugin/feishu-office/.neuxally/auth/assets.lock.json)。
-- [公开隔离补丁](patches/lark-keychain-isolation.patch) 改变钥匙串服务命名空间；[回归源码](patches/lark-keychain-isolation_test.go) 验证同 profile 复用与不同 profile 隔离，与 [macOS 私有目录回归](patches/lark-storage-isolation_darwin_test.go) 在固定源码中运行。macOS 凭据和 DPoP 文件使用私有数据目录；补丁在修改处明确注明职责，未删除上游版权。
-- 交付的 CLI 依赖原始许可收集于 [CLI 第三方声明](neuxally-plugin/feishu-office/.neuxally/auth/THIRD_PARTY_NOTICES.cli.txt)，来自实际跨平台 Go 依赖图。个别模块只有 README 的许可/作者声明而无独立 LICENSE，按原文保留并明确标注；同一声明也作为 Release 伴随资源提供。
-- [插件来源及包装修改记录](neuxally-plugin/feishu-office/provenance.json)。CLI 二进制只作为 Release 依赖资产发布，不提交源码仓库；使用时按摘要下载至插件私有目录。
+- 上游：[larksuite/cli](https://github.com/larksuite/cli/tree/ac81f5056ab88f37d581d25916f3dab85abfca76)，提交 `ac81f5056ab88f37d581d25916f3dab85abfca76`，原版本 `1.0.98`。
+- 原作者 Lark Suite CLI contributors，源码版权包含 Lark Technologies Pte. Ltd.；[原始 MIT 许可](plugins/feishu-office/LICENSE.larksuite-cli)完整保留。官方 skills、相对资料与脚本保持原样。
+- NeuxAlly contributors 维护自有标准清单、私有授权桥接与包装，业务展示品牌为飞书，实际来源及改动见 [provenance](plugins/feishu-office/provenance.json)。
+- 既有隔离 CLI 构建 `1.0.98-neuxally.1` 保持不变；固定依赖与源码/补丁摘要见 [资产锁](plugins/feishu-office/.neuxally/auth/assets.lock.json)。[钥匙串补丁](patches/lark-keychain-isolation.patch)、[隔离回归](patches/lark-keychain-isolation_test.go)与 [macOS 私有存储回归](patches/lark-storage-isolation_darwin_test.go)如实交付。
+- 实际传递依赖与 runtime 原始许可见 [CLI 声明](plugins/feishu-office/.neuxally/auth/THIRD_PARTY_NOTICES.cli.txt)，同文另作为 Release 资源。新增 GitHub 依赖不重构建或替换这些既有资产。
 
-## 保留的 GitHub CLI 隔离材料
+## 品牌图标
 
-`patches/` 保留先前集成使用的 GitHub CLI 隔离补丁与回归源码，便于追溯历史固定构建。这些文件不表示当前原生 GitHub 包使用或分发了该 CLI。
+- `plugins/github/assets/icon.png` 原样取自 [openai/plugins 固定资源](https://github.com/openai/plugins/blob/0722921d5542fc593105c27bd52630babd8b8c2a/plugins/github/assets/github.png)，SHA-256 `07e4d8c81c906dc6fffa42f2686f446724c86c2079b23aa6c77ab9dab782fdea`。该固定包清单声明 MIT，但包目录及仓库根未提供独立 LICENSE；如实披露此缺口。只保留这一实际复用图标，不分发其余原生包副本。GitHub 名称和图标归实际权利人。
+- `plugins/feishu-office/assets/icon.png` 原样复用应用提交 `7d4f24e6d23db28a3cbd6e488a09a20498709ee1` 的 `desktop/src/shared/assets/brands/feishu.png`，SHA-256 `a8b56475a902623937409d0fdc68b4b91040aa6ce34cd71e7870acf0cc8a62d9`。应用同目录来源记录追溯到[飞书官网](https://www.feishu.cn/) `og:image` 与[官网 CDN 资源](https://p1-hera.feishucdn.com/tos-cn-i-jbbdkfciu3/84a9f036fe2b44f99b899fff4beeb963~tplv-jbbdkfciu3-image:100:100.image)。未发现该图标的独立开源许可；不将本仓库或 CLI 的 MIT 许可套用于品牌，也不声称官方背书。
 
-- 上游 [cli/cli](https://github.com/cli/cli/tree/fc4b137cdef0a6bd28fd461b7cf9c84a5812a8cd)，固定提交 `fc4b137cdef0a6bd28fd461b7cf9c84a5812a8cd`，版本 `2.102.0`。
-- [原始 MIT 声明](patches/LICENSE.github-cli)、[历史来源记录](patches/github-cli-provenance.json)、[补丁](patches/github-keyring-isolation.patch) 与 [回归源码](patches/github-keyring-isolation_test.go)。
+## 维护规则
 
-## 自有逻辑入口的品牌图标
-
-- `neuxally-plugin/github/assets/icon.png` 原样取自上述 OpenAI 固定 GitHub 包的 `assets/github.png`，SHA-256 `07e4d8c81c906dc6fffa42f2686f446724c86c2079b23aa6c77ab9dab782fdea`，与来源锁一致。上游清单声明与缺少独立许可证文本的事实同上；GitHub 品牌不归 NeuxAlly 所有。
-- `neuxally-plugin/feishu-office/assets/icon.png` 原样复用 NeuxAlly 应用提交 `7d4f24e6d23db28a3cbd6e488a09a20498709ee1` 的品牌资源 `desktop/src/shared/assets/brands/feishu.png`，SHA-256 `a8b56475a902623937409d0fdc68b4b91040aa6ce34cd71e7870acf0cc8a62d9`。应用同目录 `README.md` 的来源记录追溯到[飞书官网](https://www.feishu.cn/) `og:image` 与[官网 CDN 原始资源](https://p1-hera.feishucdn.com/tos-cn-i-jbbdkfciu3/84a9f036fe2b44f99b899fff4beeb963~tplv-jbbdkfciu3-image:100:100.image)。飞书名称和图标归其实际权利人；未发现该品牌资源单独开源许可，不将本仓库 MIT 或 Lark CLI MIT 许可套用到商标图标，也不声称官方背书。
-
-## 收录与更新规则
-
-逐包核对真实来源、完整提交、实际原生结构、作者与可得许可；保留未知项并明确披露。更新使用来源登记命令重新计算完整原生树、文件摘要和模式，并审阅补丁，不能伪造原生来源或把某一包的许可推广到整个上游仓库。OpenAI 与 Claude Code 官方文档是格式依据，不是所有已收录包已在所有宿主通过验收的证据。
+保留实际来源、完整提交、原作者、许可证据和修改说明；不把独立远程服务、示例或某一依赖的许可扩大到整包。更新程序依赖时必须重跑底层隔离回归、核验固定源码并生成真实跨平台摘要。自动化与源码分发不代表真实账号、平台或宿主验收。

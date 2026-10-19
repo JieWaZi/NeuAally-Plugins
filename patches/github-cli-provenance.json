@@ -19,11 +19,11 @@
   },
   "build": {
     "toolchain": "go1.27.1",
-    "version": "2.102.0-neuxally.1",
+    "version": "2.102.0-neuxally.2",
     "patch": "patches/github-keyring-isolation.patch",
-    "patchSHA256": "63f0c564ce260baf1e747c66a995c3f323756822e7a0fa997fe74ee8ed38cd05",
+    "patchSHA256": "ac4e4726ea0a6e62b456f00a262357b276099e2ffd36b8f5a3d99f1be7a7d8d4",
     "verification": "patches/github-keyring-isolation_test.go",
-    "verificationSHA256": "6111b6c41a99738ac7accf3296d721ff1f8d488c8f28a392da6e064965a3bcb6",
-    "reason": "Prefix every underlying keyring operation with neuxally:; official OAuth and CLI behavior otherwise retained"
+    "verificationSHA256": "3f51bc521ae6dae0e1d431a5fd6b82ad1ad5e5aae3d7e78a1684f97be159c523",
+    "reason": "Bind every underlying keyring operation to the SHA-256 of the existing canonical private GH_CONFIG_DIR; reject keyring access without that profile"
   }
 }

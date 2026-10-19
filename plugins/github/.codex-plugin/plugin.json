@@ -5,14 +5,15 @@
   "author": {
     "name": "NeuxAlly contributors"
   },
-  "repository": "https://github.com/JieWaZi/NeuAally-Plugins",
+  "repository": "https://github.com/github/github-mcp-server",
   "license": "MIT",
   "interface": {
     "displayName": "GitHub",
     "shortDescription": "Search GitHub repositories, issues and pull requests, and assist with code review and collaboration.",
-    "developerName": "NeuxAlly",
+    "developerName": "GitHub",
     "logo": "./assets/icon.png",
     "composerIcon": "./assets/icon.png",
     "brandColor": "#24292f"
-  }
+  },
+  "mcpServers": "./.mcp.json"
 }

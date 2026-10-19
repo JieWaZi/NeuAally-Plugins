@@ -2,151 +2,117 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-A plugin library and marketplace for GitHub code review/collaboration and Feishu documents, tables, calendars and tasks. [NeuxAlly](https://github.com/JieWaZi/NeuxAlly) discovers this catalog over HTTP and installs fixed, verified content for a partner.
+A library of self-maintained OpenAI/Codex-standard plugins for GitHub code review and collaboration, and Feishu documents, tables, calendars and tasks. Each entry is one complete package under `plugins/`.
 
-The repository root contains a marketplace of multiple plugins, not one plugin. It therefore has no root single-plugin `plugin.json`. Standard manifests belong to each own package or to the complete native package materialized during release builds.
+| Plugin | Capabilities |
+| --- | --- |
+| [GitHub](plugins/github/README.md) | Search repository code, follow issues and pull requests, inspect changes and check results |
+| [Feishu Office](plugins/feishu-office/README.md) | Create and organize documents, manage table records, arrange events and follow up on tasks |
 
-| Plugin | Business capabilities | Maintained content |
-| --- | --- | --- |
-| [GitHub](neuxally-plugin/github/README.md) | Find repository code, track issues and pull requests, review changes and collaborate | Own logical entry with fixed OpenAI and Claude native source references |
-| [Feishu Office](neuxally-plugin/feishu-office/README.md) | Write documents, manage tables, arrange calendars and follow up tasks | Own standard Codex package, complete Lark skills and package-owned authorization bridge |
+The root is a library and marketplace, not a single plugin, so it has no root single-plugin `plugin.json`. Each package owns its standard identity and components. The library maintains one definition per capability; host adapters handle target formats instead of collecting separate Codex and Claude implementations.
 
-Catalog presence, download availability, target CLI loading and live account verification are separate facts. Publishing an archive does not prove account or platform acceptance.
+## Packages and host adapters
 
-## Install and use
+- `plugins/github/`: one standard manifest, one official GitHub MCP declaration, business documentation, brand assets and package-owned device authorization.
+- `plugins/feishu-office/`: one standard manifest, complete official skills and relative resources, business documentation, brand assets and package-owned authorization.
+- `.agents/plugins/marketplace.json`: local entries pointing at those actual standard packages. There is no parallel Claude marketplace or source-only native reference directory.
+- `patches/`: reviewed provider isolation patches, regression sources, original licenses and provenance.
+- `scripts/`: deterministic catalog/ZIP builds and independent fixed-source provider builds. Ignored `dist/` contains release artifacts; `.cache/` contains verified build inputs.
 
-In a NeuxAlly host supporting plugin catalogs, open the plugin library, install a plugin for a partner, and complete the declared authorization if required. Chat installation uses the host-discovered `allycli` installation capability and the same use case; it does not edit the user's global Codex or Claude registry.
+In NeuxAlly, HTTP discovery reads catalog metadata; installation downloads the selected complete ZIP for a partner. The host adapts this one standard package to the selected runtime. NeuxAlly can still import existing native Codex and Claude packages; that host compatibility does not require this library to maintain two source packages. Direct standard use can load the root local marketplace or the package's own standard contents, subject to the CLI's supported capabilities.
 
-A system logical plugin is installed once for a partner. It keeps one relationship and logical version while the host selects a fixed implementation for the current CLI. An explicit native reference wins; only a target without a reference may use existing own content. A pure reference entry without an applicable implementation fails explicitly.
-
-For direct native use:
-
-- The source [.agents/plugins/marketplace.json](.agents/plugins/marketplace.json) lists the own Feishu package that actually exists in this checkout. It does not point at a GitHub directory containing only `source.json`.
-- The source [.claude-plugin/marketplace.json](.claude-plugin/marketplace.json) uses Claude's documented [`git-subdir` source](https://code.claude.com/docs/en/plugins/marketplace-reference#git-subdir-plugin-source) with a fixed commit and package path. Direct native Claude installation may use Git; the NeuxAlly HTTP installation path does not.
-- Each release installation ZIP contains complete implementation files and generated local native indexes at its root. Extract `github.zip` to use its complete Codex/Claude marketplace snapshot, or `feishu-office.zip` for its own Codex snapshot. Codex GitHub's native local index is supplied in the complete release snapshot.
-
-Consult the installed CLI's plugin help for supported commands and scopes. Native loading alone does not supply NeuxAlly accounts, private execution environments or an authorization UI. Source-only native reference directories cannot be loaded as native plugins.
+The manifest's `repository` and `interface.developerName` identify the official capability project and brand: GitHub / `github/github-mcp-server`, and 飞书 / `larksuite/cli`. `author` and provenance separately identify NeuxAlly contributors as authors of the package wrapper and bridge. Official service/skill authorship is not authorship of this packaging, and brand attribution is not official endorsement. See [third-party notices](THIRD_PARTY_NOTICES.md).
 
 ```mermaid
 flowchart LR
-  Sources[codex-plugins / claude-plugins source references] --> Build[Maintainer release build]
-  Upstream[Fixed upstream HTTP files] -->|SHA-256 + complete Git tree + modes| Build
-  Own[neuxally-plugin own standard content] --> Build
-  Build --> ZIP[Complete fixed ZIP + native indexes]
-  Build --> Catalog[HTTP catalog.json]
+  Package[One standard package: manifest + Skills / MCP] --> Build[Fixed Git snapshot build]
+  Build --> Catalog[HTTP catalog: metadata + safe icon]
+  Build --> ZIP[Complete verified ZIP]
   User[User] --> UI[NeuxAlly frontend]
-  UI --> Core[Host/Core: installation, sessions, leases and secrets]
+  UI --> Core[Core: installation, sessions, leases and secrets]
   Catalog --> Core
   ZIP --> Core
-  Core --> Target[Referenced native package or own target content]
-  Target --> Runtime[One authorized delivery per component]
+  Core --> Adapter[Host target adapter]
+  Adapter --> Codex[Codex]
+  Adapter --> Claude[Claude Code]
+  Adapter --> Skills[Other supported skill targets]
 ```
 
-## Repository layout and source registration
+## Maintaining a standard package
 
-- `codex-plugins/`: native source addresses, full commits, upstream package paths, complete tree/file integrity locks, and necessary license evidence. Upstream source/assets are downloaded at build time.
-- `claude-plugins/`: the same responsibility for actual Claude native packages; source metadata is not a loadable native package.
-- `neuxally-plugin/`: own logical entries and own standard Codex content. `.codex-plugin/plugin.json` owns identity and standard components; optional `.neuxally/integration.json` only adds references and authorization.
-- `patches/`: public CLI isolation patches, regression sources and truthful historical notices.
-- `scripts/`: source registration, HTTP materialization, deterministic ZIP/catalog and optional dependency builds. `.cache/` and `dist/` are ignored.
+Create `plugins/<key>/.codex-plugin/plugin.json` with standard identity, version, description, truthful author and license. Declare actual skills and MCP components using the [official packaging fields](https://developers.openai.com/plugins/build/plugins). Preserve third-party source, scripts, relative references and executable modes. Do not add a second hand-maintained component index or native source-reference manifest.
 
-To collect an upstream package, inspect the actual official repository, marketplace, authorship and license. Choose a complete commit and the real package subdirectory. Register its source and integrity lock rather than maintaining a long-lived copied source tree:
+Each plugin's English and Chinese README describes only its own capabilities, access requirements and practical uses. It contains no host roles, installation flow, chat prompts or language navigation; the host selects the document by system language. Standard English interface fields, optional localized display text and static PNG assets follow the [presentation maintenance guide](docs/MAINTAINING.md). A package without `.neuxally/` remains a standard package.
 
-```sh
-node scripts/lock-native-source.mjs codex-plugins/example https://github.com/example/plugins <full-40-character-commit> plugins/example
-```
+## Declaration-driven authorization
 
-The registration command fetches the complete upstream tree metadata and files by HTTP. It records `source.json` with `repository`, `commit`, `path`, `treeSHA`, and every file's SHA-256 and Unix mode, verifies the complete Git tree, and preserves reviewed author/license metadata. Review that metadata and retain any required license evidence before committing. Symlinks, submodules, unsafe paths, duplicate files, wrong modes and incomplete trees are rejected. Current source transport supports GitHub HTTPS repositories.
+MCP services and skill components remain declared by their standard files. Optional `.neuxally/integration.json` adds only host integration: authentication strategy, scopes, preferred challenge action and exact authorized component bindings. It does not declare a second identity or component list.
 
-The release builder fetches only these fixed files through HTTP. Each file is verified before caching; the complete package tree is verified before it can enter a ZIP. Corrupt caches are refetched and verified caches support offline rebuilds. HTTP failures cannot replace existing release output. This keeps upstream provenance explicit without committing ongoing upstream source copies.
+Both included packages use `authentication.strategy: plugin-command`, `protocol: neuxally-auth/1`, trusted Node and a package-relative bridge entry. The frontend displays safe actions supplied by Core and sends cancellation requests. Core owns sessions, leases and private execution bindings. The bridge interprets its vendor flow; raw provider frames, credentials and private bindings do not enter the frontend.
 
-## Own packages and native routing
-
-Keep each plugin's English and Chinese README focused on its native capabilities, access requirements and practical uses; omit host roles, product installation flows and chat prompts. Maintain standard English interface metadata, localized display text and package-owned brand assets according to the [presentation maintenance guide](docs/MAINTAINING.md); source and implementation details belong in development documents and notices.
-
-Create an own package at `neuxally-plugin/<key>/.codex-plugin/plugin.json` using standard identity, version, description, truthful author and license fields. Follow the official [Codex packaging documentation](https://developers.openai.com/plugins/build/plugins) for complete skills, MCP and other native components. Preserve scripts, relative references, assets and execution modes. A package without `.neuxally/` remains standard.
-
-A logical entry can refer to reviewed native sources without duplicating their components:
-
-```json
-{
-  "nativePlugins": {
-    "codex": { "path": "codex-plugins/github" },
-    "claude": { "path": "claude-plugins/github" }
-  }
-}
-```
-
-These paths resolve from the verified release source root. The source checkout contains references at those paths; the installation ZIP materializes complete native implementations at the same paths. The application consumes the same archive contract and needs no Git executable. Logical and native versions stay separate; absent upstream versions are not invented.
-
-OpenAI GitHub retains its managed app declaration and public OAuth client configuration. Claude GitHub requires `GITHUB_PERSONAL_ACCESS_TOKEN` through protected configuration. Neither model proves the other is available in a host; user tokens must remain private. See [source and license evidence](THIRD_PARTY_NOTICES.md).
-
-## HTTP discovery, fixed versions and offline snapshots
-
-Use the [latest catalog](https://github.com/JieWaZi/NeuAally-Plugins/releases/latest/download/catalog.json) for discovery or the [fixed v0.1.0 catalog](https://github.com/JieWaZi/NeuAally-Plugins/releases/download/v0.1.0/catalog.json) for reproducibility. A new release is available only after its maintainer publishes it.
-
-```sh
-curl --fail --location https://github.com/JieWaZi/NeuAally-Plugins/releases/download/v0.1.0/catalog.json --output catalog.json
-curl --fail --location https://github.com/JieWaZi/NeuAally-Plugins/releases/download/v0.1.0/github.zip --output github.zip
-shasum -a 256 github.zip
-```
-
-Compare the downloaded digest with the selected catalog entry before extraction. The transfer index remains `{schemaVersion:2,entries:[...]}` with `key`, full `sourceCommit`, immutable `archiveURL`, `archiveSHA256`, `packagePath`, `name`, logical `version`, `description` and `format: codex`. Optional `displayNames`, `localizedDescriptions` and validated embedded `icon` provide localized presentation before downloading a package. It is directory metadata, not another plugin manifest.
-
-Search reads only catalog metadata; installation downloads the chosen complete ZIP. An offline installation snapshot contains the logical entry, all referenced native files, integrity/license evidence and applicable local native indexes. It can be mirrored without making clients resolve upstream Git refs. Separate services and first-use CLI dependencies can still require network access and authorization. Installed content is identified by its source commit and archive digest; a published test asset replacement does not silently change an installed snapshot.
-
-## Authorization without provider branches
-
-Standard MCP authentication should follow its supported declarations and discovery. For a nonstandard CLI, declare `authentication` in `.neuxally/integration.json`, choose `strategy: plugin-command`, `protocol: neuxally-auth/1`, a trusted executable and package-local arguments, then implement start/status/cancel/resolve/logout. The NeuxAlly frontend displays only Core-bound actions and sends cancellation requests. Host/Core owns sessions, leases and private execution bindings; the package bridge interprets the vendor protocol. Provider credentials and raw frames never enter the frontend. See the [implemented bridge contract and private resolve example](neuxally-plugin/feishu-office/.neuxally/auth/README.md).
-
-Feishu's bridge downloads its own fixed, digest-verified isolated CLI into private data on first use, emits real successive challenges, and verifies granted identity and scopes through the official CLI. It clears inherited CLI credential overrides. The host receives safe account summaries and only passes approved component bindings through its private execution channel. A trusted host may supply the same fixed dependency through `NEUXALLY_LARK_CLI`; a new provider does not require new host download code or UI branches.
+- GitHub uses the official device OAuth flow through a fixed isolated GitHub CLI. It emits the actual `https://github.com/login/device` URL and one-time code, verifies account and granted scopes online, and resolves a private OAuth Bearer header only for the exact `github` MCP at `https://api.githubcopilot.com/mcp/`. Only the declared Codex and Claude targets receive these OAuth bindings, both referring to that same component; other runtimes cannot fall back to an undeclared authorization route. No PAT placeholder or managed app connector is bundled. `preferredAction: open-url` does not imply QR support.
+- Feishu uses successive official application-creation and user-authorization QR challenges. An existing application without a user identity is a valid pending stage; only final online identity/scope verification marks it available. `preferredAction: show-qr` allows the frontend to prepare a QR placeholder while waiting for actual challenge actions. See the [Feishu bridge contract](plugins/feishu-office/.neuxally/auth/README.md) and [GitHub bridge contract](plugins/github/.neuxally/auth/README.md).
 
 ```mermaid
 sequenceDiagram
   participant UI as NeuxAlly frontend
-  participant Core as Host/Core session and secret owner
+  participant Core as Core session and secret owner
   participant Bridge as Package bridge
-  participant Provider as Official CLI / provider
+  participant Vendor as Isolated official CLI / provider
   participant User
   UI->>Core: Request authorization
-  Core->>Bridge: auth/start (session, private directory, scopes)
+  Core->>Bridge: auth/start + private identity and scopes
   Bridge-->>Core: pending
-  Bridge->>Provider: Start actual authorization
-  Provider-->>Bridge: Dynamic challenge
-  Bridge-->>Core: auth/challenge (unique ID and actions)
-  Core-->>UI: Bound safe actions and available expiry
-  UI-->>User: Display supplied URL / QR / code
-  alt User completes authorization while waiting
-    User->>Provider: Complete authorization
-  Bridge->>Provider: Verify account and scopes
-  Bridge-->>Core: auth/state authorized + safe summary
-  Core-->>UI: Public authorization state
-  Core->>Bridge: auth/resolve (approved components)
-  Bridge-->>Core: Private component bindings
-  else User cancels while waiting
-    User->>UI: Cancel
-    UI->>Core: Cancel current session
+  Bridge->>Vendor: Start actual flow
+  Vendor-->>Bridge: Device URL / code / QR challenge
+  Bridge-->>Core: auth/challenge + unique ID and actions
+  Core-->>UI: Bound safe actions
+  UI-->>User: Display actual challenge
+  alt Authorization succeeds
+    User->>Vendor: Complete required stages
+    Bridge->>Vendor: Verify identity and scopes
+    Bridge-->>Core: authorized + safe account summary
+    Core->>Bridge: auth/resolve + approved components
+    Bridge-->>Core: Private bindings
+    Core-->>UI: Public account state
+  else Cancel while waiting
+    UI->>Core: Cancel session
     Core->>Bridge: auth/cancel
-    Bridge->>Provider: Stop upstream work
-    Bridge-->>Core: Cancelled after actual stop
-    Core-->>UI: Clear challenge and display state
+    Bridge->>Vendor: Stop upstream work
+    Bridge-->>Core: cancelled after actual stop
+    Core-->>UI: Clear current challenge
   end
-  Note over Core,Bridge: An already authorized identity is cleared with auth/logout
+  Note over Core,Bridge: An authorized identity is cleared with auth/logout
 ```
 
-## Build and release
+Provider programs are independent digest-locked dependencies downloaded by each plugin into its private data directory. The host does not bundle or download one vendor program per plugin. Package locks pin HTTPS asset URLs, sizes, hashes, fixed source, toolchain and isolation evidence. GitHub clears inherited CLI credentials and uses a private profile; its patched keyring service is bound to the canonical profile directory digest. Feishu uses its existing private profile and credential isolation. Trusted test overrides can supply the same program boundary without looking up user-global CLIs.
 
-Use Node 22+ and Git to build a committed source snapshot. Git reads only this repository; upstream native files are fetched by HTTP. Review and commit the source locks and own manifests before building:
+## HTTP catalog and complete snapshots
+
+Use the [latest catalog](https://github.com/JieWaZi/NeuAally-Plugins/releases/latest/download/catalog.json) or [fixed v0.1.0 catalog](https://github.com/JieWaZi/NeuAally-Plugins/releases/download/v0.1.0/catalog.json). Each `{schemaVersion:2,entries:[...]}` entry records `key`, full `sourceCommit`, `archiveURL`, `archiveSHA256`, `packagePath: plugins/<key>`, standard `name`, `version`, English `description` and `format: codex`. Optional localized maps and a validated embedded icon support presentation before package download; components are read from the actual package.
+
+A ZIP contains its complete standard package, applicable local Codex index, source/license evidence and public patches. No upstream Git or HTTP materialization is required by installation or ordinary catalog builds. Separate business services and first-use provider dependencies still require network access. Clients verify the selected archive digest before extraction. Installed snapshots remain identified by their source commit and digest when test-release assets change.
+
+## Build and test release
+
+Node 22+ and Git build a committed snapshot; dirty workspace files and timestamps do not enter the result:
 
 ```sh
 npm test
 node scripts/build-catalog.mjs HEAD v0.1.0
 ```
 
-The builder materializes fixed upstream trees, validates native manifests, then generates deterministic ZIPs and the catalog in ignored `dist/`. It preserves exact file bytes and executable modes. Identical inputs and verified cache content produce identical ZIPs; dirty working files do not enter the committed snapshot.
+The builder validates canonical packages and local assets, produces deterministic ZIPs and catalog, and replaces its output after validation. The CLI replaces the `dist` output directory while preserving `dist/providers`; use the exported `buildCatalog({root,out,sourceCommit})` with a separate output directory when existing unrelated receipts must be retained.
 
-The current test release retains the fixed tag `v0.1.0`; an explicitly approved update may replace its tag and assets with a newly verified source snapshot. Both maintained logical entries use `0.1.0`. Upstream plugin, CLI and protocol versions keep their own meaning. Feishu's dependency lock points to immutable v0.1.0 CLI assets, retaining the binary version and hashes. `scripts/build-lark-provider.mjs` remains available for deliberate future dependency changes with its fixed toolchain, public patches and license collection.
+Provider rebuilds are deliberate independent operations, not a prerequisite for catalog builds:
 
-After review and authorization, publish `dist/catalog.json`, `dist/github.zip` and `dist/feishu-office.zip` to the v0.1.0 test release targeting the exact source commit, explicitly selecting it as latest for default catalog discovery. The CLI dependency and license assets remain at the existing immutable v0.1.0 release; this update publishes only the catalog and two plugin ZIPs. Replace test release assets only with explicit authorization, and verify the resulting catalog, archive digests and exact tag target together. Build checks do not replace real CLI, account, platform or visual acceptance.
+```sh
+node scripts/build-github-provider.mjs
+node scripts/build-lark-provider.mjs
+```
 
-The root [MIT license](LICENSE) covers NeuxAlly-authored material. Third-party content and release snapshots retain their actual terms; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Each fixed-source provider build verifies source and isolation tests, cross-compiles six platforms and collects actual dependency license texts. Lark assets remain unchanged when updating GitHub. Upstream CLI versions and protocol/schema versions have their own meaning; both own packages and the current test tag remain `0.1.0` / `v0.1.0`.
+
+With explicit authorization, a verified new snapshot may replace the fixed test tag and corresponding release assets. Publish needed provider binaries and notices before the catalog/ZIPs, then verify the final tag target, sourceCommit and all asset digests over HTTP. Never silently replace an already installed snapshot. Automated tests, cross compilation and publication do not substitute for real account, platform, runtime or UI acceptance.
+
+The root [MIT license](LICENSE) covers NeuxAlly-authored packaging. Third-party content and brand assets retain their actual terms and disclosed license gaps.

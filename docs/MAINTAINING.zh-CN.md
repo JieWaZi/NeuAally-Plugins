@@ -2,11 +2,11 @@
 
 [English](MAINTAINING.md) | [简体中文](MAINTAINING.zh-CN.md)
 
-仓库根[开发指南](../README.zh-CN.md)负责来源登记、原生路由、授权架构和发布构建。每个插件的 README 只介绍插件自身的原生能力、权限前提与实用场景，不出现伙伴等宿主角色、NeuxAlly 安装流程、聊天引导或“试着这样说”。供应商技术细节、来源版本、适配策略、验证边界和维护说明放在开发指南或[第三方声明](../THIRD_PARTY_NOTICES.md)。
+仓库根[开发指南](../README.zh-CN.md)负责统一标准包布局、目标适配、授权架构和发布构建。每个插件的 README 只介绍插件自身的原生能力、权限前提与实用场景，不出现伙伴等宿主角色、NeuxAlly 安装流程、聊天引导或“试着这样说”。供应商技术细节、来源版本、适配策略、验证边界和维护说明放在开发指南或[第三方声明](../THIRD_PARTY_NOTICES.md)。
 
 ## 标准清单与本地化展示
 
-自有包的 `.codex-plugin/plugin.json` 默认使用英文，身份与版本只在该清单维护。设置已支持的 `interface.displayName`、`shortDescription`、`developerName`、`logo` 和 `composerIcon`。公开开发者名称使用 `NeuxAlly`，原作者与许可保持真实。图标使用包内 `./assets/` 相对路径，字段与路径约定见[官方打包文档](https://developers.openai.com/plugins/build/plugins)。
+`plugins/<key>` 自有包的 `.codex-plugin/plugin.json` 默认使用英文，身份与版本只在该清单维护。设置已支持的 `interface.displayName`、`shortDescription`、`developerName`、`logo` 和 `composerIcon`。`developerName` 使用真实业务能力品牌（GitHub / 飞书），`repository` 指向官方能力项目；封装作者与源码/许可证据分别保留，不冒充官方编写了我们的封装。图标使用包内 `./assets/` 相对路径，字段与路径约定见[官方打包文档](https://developers.openai.com/plugins/build/plugins)。
 
 `README.md` 提供英文，`README.zh-CN.md` 提供简体中文，插件说明不添加语言导航，由宿主按系统语言选择对应文档，缺少翻译时回退英文。
 
@@ -34,8 +34,8 @@
 
 ## 现有集成维护
 
-GitHub 自有逻辑入口引用固定的 OpenAI 和 Claude 原生包。各自版本与认证模型分别保留：OpenAI 保留托管 app 与公共 OAuth 声明，Claude 通过受保护配置提供 `GITHUB_PERSONAL_ACCESS_TOKEN`。自有英文清单与本地化文件说明同一业务能力，不改写上游原生清单。
+GitHub 包内只有一份标准 `.mcp.json` 官方端点声明及自有设备 OAuth 桥接。两个运行目标的授权绑定指向同一组件，不代表两份实现。包内不包含 PAT 占位、托管 app 声明、原生来源引用或上游 HTTP 还原流程。宿主将同一份定义适配到支持的目标格式。
 
-飞书办公保留完整官方技能与相对资料。包内桥接负责多阶段授权挑战、账号和范围核验、获准组件私密绑定；宿主管理账号、会话生命周期与秘密存储。业务执行不能通过聊天发起 CLI 登录或配置命令绕过该生命周期。隔离 CLI 及供应商版本独立记录于[资产锁](../neuxally-plugin/feishu-office/.neuxally/auth/assets.lock.json)和[桥接指南](../neuxally-plugin/feishu-office/.neuxally/auth/README.md)，不等同自有插件版本。
+飞书办公保留完整官方技能与相对资料。包内桥接负责多阶段授权挑战、账号和范围核验、获准组件私密绑定；宿主管理账号、会话生命周期与秘密存储。业务执行不能通过聊天发起 CLI 登录或配置命令绕过该生命周期。隔离 CLI 及供应商版本独立记录于[资产锁](../plugins/feishu-office/.neuxally/auth/assets.lock.json)和[桥接指南](../plugins/feishu-office/.neuxally/auth/README.md)，不等同自有插件版本。
 
 发布、CLI 清单校验与自动化测试不代表真实账号、平台、原生运行或界面验收。相关边界记录于实施或发布报告，插件业务 README 不插入内部验收免责声明。品牌来源与真实许可缺口保留在第三方声明中。

@@ -1,11 +1,46 @@
 --- a/internal/keyring/keyring.go
 +++ b/internal/keyring/keyring.go
-@@ -26 +26 @@
--		ch <- keyring.Set(service, user, secret)
-+		ch <- keyring.Set("neuxally:"+service, user, secret)
-@@ -44 +44 @@
--		val, err := keyring.Get(service, user)
-+		val, err := keyring.Get("neuxally:"+service, user)
-@@ -66 +66 @@
--		ch <- keyring.Delete(service, user)
-+		ch <- keyring.Delete("neuxally:"+service, user)
+@@ -4,0 +5 @@
++	"crypto/sha256"
+@@ -5,0 +7,3 @@
++	"fmt"
++	"os"
++	"path/filepath"
+@@ -22,0 +27,5 @@
++	var err error
++	service, err = privateService(service)
++	if err != nil {
++		return err
++	}
+@@ -37,0 +47,5 @@
++	var err error
++	service, err = privateService(service)
++	if err != nil {
++		return "", err
++	}
+@@ -62,0 +77,5 @@
++	var err error
++	service, err = privateService(service)
++	if err != nil {
++		return err
++	}
+@@ -82,0 +102,19 @@
++
++// privateService 将全部底层操作及官方迁移限定到明确的私有配置目录。
++// 无有效目录时拒绝访问，不回退到用户 gh 或旧应用的共享服务名。
++func privateService(service string) (string, error) {
++	profile := os.Getenv("GH_CONFIG_DIR")
++	if !filepath.IsAbs(profile) {
++		return "", errors.New("private GH_CONFIG_DIR is required for keyring access")
++	}
++	canonical, err := filepath.EvalSymlinks(profile)
++	if err != nil {
++		return "", errors.New("private GH_CONFIG_DIR must exist")
++	}
++	info, err := os.Stat(canonical)
++	if err != nil || !info.IsDir() {
++		return "", errors.New("private GH_CONFIG_DIR must be a directory")
++	}
++	digest := sha256.Sum256([]byte(filepath.Clean(canonical)))
++	return fmt.Sprintf("neuxally:%x:%s", digest, service), nil
++}

@@ -5,10 +5,17 @@
   },
   "plugins": [
     {
+      "name": "github",
+      "source": {
+        "source": "local",
+        "path": "./plugins/github"
+      }
+    },
+    {
       "name": "feishu-office",
       "source": {
         "source": "local",
-        "path": "./neuxally-plugin/feishu-office"
+        "path": "./plugins/feishu-office"
       }
     }
   ]

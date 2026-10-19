@@ -1,4 +1,3 @@
-import { materializeNativeSource } from './native-source.mjs';
 import { catalogPresentation } from './presentation.mjs';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -36,7 +35,7 @@ function zip(files) {
   return Buffer.concat([...local, directory, end]);
 }
 
-export async function buildCatalog({ root, out, sourceCommit, tag = 'v0.1.0', fetcher = fetch, cacheDirectory = path.join(root, '.cache/native') }) {
+export async function buildCatalog({ root, out, sourceCommit, tag = 'v0.1.0' }) {
   if (!/^[a-f0-9]{40}$/.test(sourceCommit)) throw new Error('sourceCommit must be a full Git commit');
   if (!/^v\d+\.\d+\.\d+(?:[-.][a-zA-Z0-9.-]+)?$/.test(tag)) throw new Error('release tag must be fixed');
   execFileSync('git', ['-C', root, 'rev-parse', '--verify', `${sourceCommit}^{commit}`], { stdio: 'pipe' });
@@ -47,47 +46,22 @@ export async function buildCatalog({ root, out, sourceCommit, tag = 'v0.1.0', fe
     if (entry.content) return entry.content;
     return execFileSync('git', ['-C', root, 'cat-file', 'blob', entry.oid], { maxBuffer: 64 * 1024 * 1024 });
   };
-  const manifests = [...tree.keys()].filter(name => /^neuxally-plugin\/[^/]+\/\.codex-plugin\/plugin.json$/.test(name)).sort();
-  if (!manifests.length) throw new Error('no logical plugin manifests');
-  const artifacts = [], entries = []; const materialized = new Set();
+  const manifests = [...tree.keys()].filter(name => /^plugins\/[^/]+\/\.codex-plugin\/plugin.json$/.test(name)).sort();
+  if (!manifests.length) throw new Error('no canonical plugin manifests');
+  const artifacts = [], entries = [];
   for (const filename of manifests) {
     const packagePath = filename.split('/').slice(0, 2).join('/'); const key = packagePath.split('/')[1];
     if (!/^[a-z0-9][a-z0-9-]*$/.test(key)) throw new Error('unsafe plugin key');
     const manifest = JSON.parse(read(filename));
     if (manifest.name !== key || typeof manifest.version !== 'string' || !manifest.version || typeof manifest.description !== 'string') throw new Error(`invalid logical manifest: ${filename}`);
     const presentation = catalogPresentation({ manifest, packagePath, has: name => tree.has(name), read });
-    const nativeEntries = {};
-    const directories = [packagePath]; const integrationPath = `${packagePath}/.neuxally/integration.json`;
-    if (tree.has(integrationPath)) {
-      const integration = JSON.parse(read(integrationPath));
-      for (const [cli, reference] of Object.entries(integration.nativePlugins ?? {})) {
-        const prefix = { codex: 'codex-plugins/', claude: 'claude-plugins/' }[cli];
-        if (!prefix || !safePath(reference?.path) || !reference.path.startsWith(prefix)) throw new Error(`unsafe native reference path: ${cli}`);
-        const sourceFile = `${reference.path}/source.json`;
-        if (tree.has(sourceFile) && !materialized.has(reference.path)) {
-          const source = JSON.parse(read(sourceFile));
-          const files = await materializeNativeSource({ source, cacheDirectory, fetcher });
-          materialized.add(reference.path);
-          for (const file of files) {
-            const name = `${reference.path}/${file.path}`;
-            if (tree.has(name)) throw new Error(`native source path collision: ${name}`);
-            tree.set(name, { type: 'blob', mode: file.mode, content: file.content });
-          }
-        }
-        const nativeManifest = `${reference.path}/.${cli === 'codex' ? 'codex' : 'claude'}-plugin/plugin.json`;
-        const native = JSON.parse(read(nativeManifest));
-        if (typeof native.name !== 'string' || !native.name) throw new Error(`invalid native manifest: ${nativeManifest}`);
-        nativeEntries[cli] = { name: native.name, directory: reference.path };
-        directories.push(reference.path);
-      }
-    }
-    const selected = [...tree.keys()].filter(name => ['LICENSE', 'THIRD_PARTY_NOTICES.md'].includes(name) || name.startsWith('patches/') || directories.some(directory => name.startsWith(`${directory}/`))).sort();
+    const integrationPath = `${packagePath}/.neuxally/integration.json`;
+    if (tree.has(integrationPath) && Object.hasOwn(JSON.parse(read(integrationPath)), 'nativePlugins')) throw new Error('canonical package cannot use native references');
+    const selected = [...tree.keys()].filter(name => ['LICENSE', 'THIRD_PARTY_NOTICES.md'].includes(name) || name.startsWith('patches/') || name.startsWith(`${packagePath}/`)).sort();
     const archiveFiles = selected.map(name => ({ name, mode: tree.get(name).mode, content: read(name) }));
-    // 每个可离线解包的完整快照附带合法本地原生索引，不指向源码中的仅来源描述目录。
-    const codexDirectory = nativeEntries.codex?.directory ?? packagePath;
-    const codexIndex = { name: `neuxally-${key}`, interface: { displayName: `NeuxAlly ${key}` }, plugins: [{ name: nativeEntries.codex?.name ?? manifest.name, source: { source: 'local', path: `./${codexDirectory}` } }] };
-    if (nativeEntries.codex || selected.some(name => name.startsWith(`${packagePath}/skills/`) || name === `${packagePath}/.mcp.json`)) archiveFiles.push({ name: '.agents/plugins/marketplace.json', mode: '100644', content: Buffer.from(`${JSON.stringify(codexIndex, null, 2)}\n`) });
-    if (nativeEntries.claude) archiveFiles.push({ name: '.claude-plugin/marketplace.json', mode: '100644', content: Buffer.from(`${JSON.stringify({ name: `neuxally-${key}`, owner: { name: 'NeuxAlly contributors' }, metadata: { description: 'Complete fixed native plugin snapshot' }, plugins: [{ name: nativeEntries.claude.name, source: `./${nativeEntries.claude.directory}` }] }, null, 2)}\n`) });
+    // 每个完整自有标准包附带合法本地索引；宿主适配其他格式，不维护第二份能力定义。
+    const codexIndex = { name: `neuxally-${key}`, interface: { displayName: manifest.interface?.displayName || manifest.name }, plugins: [{ name: manifest.name, source: { source: 'local', path: `./${packagePath}` } }] };
+    archiveFiles.push({ name: '.agents/plugins/marketplace.json', mode: '100644', content: Buffer.from(`${JSON.stringify(codexIndex, null, 2)}\n`) });
     const archive = zip(archiveFiles.sort((a, b) => Buffer.compare(Buffer.from(a.name), Buffer.from(b.name))));
     const archiveName = `${key}.zip`; artifacts.push([archiveName, archive]);
     entries.push({ key, sourceCommit, archiveURL: `${repository}/releases/download/${tag}/${archiveName}`, archiveSHA256: createHash('sha256').update(archive).digest('hex'), packagePath, name: manifest.name, version: manifest.version, description: manifest.description, format: 'codex', ...presentation });

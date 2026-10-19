@@ -1,0 +1,28 @@
+{
+  "packaging": {
+    "author": "NeuxAlly contributors",
+    "repository": "https://github.com/JieWaZi/NeuAally-Plugins",
+    "license": "MIT",
+    "changes": "Own Codex-standard package, declaration-driven device OAuth bridge, isolated fixed-source GitHub CLI; no upstream MCP server implementation is redistributed"
+  },
+  "capability": {
+    "developer": "GitHub",
+    "repository": "https://github.com/github/github-mcp-server",
+    "url": "https://api.githubcopilot.com/mcp/",
+    "distribution": "Official hosted MCP endpoint; service implementation and version are not bundled"
+  },
+  "logo": {
+    "repository": "https://github.com/openai/plugins",
+    "commit": "0722921d5542fc593105c27bd52630babd8b8c2a",
+    "path": "plugins/github/assets/github.png",
+    "sha256": "07e4d8c81c906dc6fffa42f2686f446724c86c2079b23aa6c77ab9dab782fdea",
+    "license": "Upstream manifest declares MIT; no separate LICENSE in that snapshot; GitHub brand remains its owners property"
+  },
+  "cli": {
+    "repository": "https://github.com/cli/cli",
+    "commit": "fc4b137cdef0a6bd28fd461b7cf9c84a5812a8cd",
+    "version": "2.102.0-neuxally.2",
+    "license": "MIT",
+    "lock": ".neuxally/auth/assets.lock.json"
+  }
+}

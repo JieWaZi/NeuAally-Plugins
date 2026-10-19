@@ -18,9 +18,10 @@ if (process.env.LARKSUITE_CLI_ACCESS_TOKEN) process.exit(19);
 fs.mkdirSync(p,{recursive:true});
 const flag=path.join(p,'authorized');
 if(args[0]==='config'){process.stderr.write('https://open.feishu.cn.evil.example/page/cli?user_code=bad\\n');process.stderr.write('https://open.feishu.cn/page/cli?user_code=APP-EXAMPLE\\n');fs.writeFileSync(path.join(p,'config.json'),'{}');}
+else if(args[1]==='status' && ${['app-only', 'two-stage-app-only'].includes(scenario)} && !fs.existsSync(flag)){console.log(JSON.stringify({appId:'cli_example',identities:{}}));}
 else if(args[1]==='status'){console.log(JSON.stringify({appId:'cli_example',identities:{user:{available:fs.existsSync(flag),verified:${scenario !== 'unverified'},openId:'ou_example',userName:'示例账号',scope:${JSON.stringify(scenario === 'missing-scope' ? 'offline_access' : 'offline_access docx:document')}}}}));}
 else if(args.includes('--no-wait'))console.log(JSON.stringify({verification_url:'https://open.feishu.cn/auth/device?code=USER-EXAMPLE',device_code:'PRIVATE-DEVICE-TOKEN',expires_in:${scenario === 'expired' ? 1 : 600}}));
-else if(args.includes('--device-code')){${['cancel', 'expired'].includes(scenario) ? "setInterval(()=>{},1000);process.on('SIGTERM',()=>{fs.writeFileSync(path.join(p,'stopped'),'yes');process.exit(0)});" : "fs.writeFileSync(flag,'yes');console.log(JSON.stringify({event:'authorization_complete',missing:[]}));"}}
+else if(args.includes('--device-code')){${scenario === 'two-stage-app-only' ? "const wait=setInterval(()=>{if(fs.existsSync(path.join(p,'complete-user'))){clearInterval(wait);fs.writeFileSync(flag,'yes');console.log(JSON.stringify({event:'authorization_complete',missing:[]}));}},20);" : ['cancel', 'expired'].includes(scenario) ? "setInterval(()=>{},1000);process.on('SIGTERM',()=>{fs.writeFileSync(path.join(p,'stopped'),'yes');process.exit(0)});" : "fs.writeFileSync(flag,'yes');console.log(JSON.stringify({event:'authorization_complete',missing:[]}));"}}
 else if(args[1]==='logout'){fs.rmSync(flag,{force:true});}
 else if(args[0]==='probe')console.log('MANAGED:'+p);
 else process.exit(20);
@@ -30,20 +31,21 @@ else process.exit(20);
   const foreignMarker = path.join(directory, 'used-global-cli');
   const foreignBinary = path.join(foreignDirectory, 'lark-cli');
   await writeFile(foreignBinary, `#!/usr/bin/env node\nrequire('node:fs').writeFileSync(${JSON.stringify(foreignMarker)},'used'); console.log('USER-GLOBAL');`); await chmod(foreignBinary, 0o755);
-  let script = path.resolve('neuxally-plugin/feishu-office/.neuxally/auth/authorize.mjs'); let nodeArgs = [];
+  let script = path.resolve('plugins/feishu-office/.neuxally/auth/authorize.mjs'); let nodeArgs = [];
   if (options.downloaded) {
     // 只替代 HTTP 响应；资产校验/缓存、桥接、私密 resolve 和最终命令查找均运行真实代码。
     const fixturePackage = path.join(directory, 'package'); const authDirectory = path.join(fixturePackage, '.neuxally/auth');
     await cp(path.dirname(script), authDirectory, { recursive: true });
-    await cp(path.resolve('neuxally-plugin/feishu-office/.neuxally/integration.json'), path.join(fixturePackage, '.neuxally/integration.json'));
+    await cp(path.resolve('plugins/feishu-office/.neuxally/integration.json'), path.join(fixturePackage, '.neuxally/integration.json'));
     await mkdir(path.join(fixturePackage, 'skills/lark-doc'), { recursive: true });
-    await cp(path.resolve('neuxally-plugin/feishu-office/skills/lark-doc/SKILL.md'), path.join(fixturePackage, 'skills/lark-doc/SKILL.md'));
+    await cp(path.resolve('plugins/feishu-office/skills/lark-doc/SKILL.md'), path.join(fixturePackage, 'skills/lark-doc/SKILL.md'));
     const content = await readFile(binary); const digest = createHash('sha256').update(content).digest('hex');
     await writeFile(path.join(authDirectory, 'assets.lock.json'), JSON.stringify({ schemaVersion: 1, assets: { [`${process.platform}-${process.arch}`]: { url: 'https://github.com/example/release/lark-cli', sha256: digest, size: content.length } } }));
     const preload = path.join(directory, 'http-response.mjs');
     await writeFile(preload, `import { readFile } from 'node:fs/promises';globalThis.fetch=async()=>new Response(await readFile(${JSON.stringify(binary)}));`);
     script = path.join(authDirectory, 'authorize.mjs'); nodeArgs = ['--import', preload];
   }
+  if (scenario === 'app-only') { await mkdir(path.join(directory, 'private/profile'), { recursive: true }); await writeFile(path.join(directory, 'private/profile/config.json'), '{}'); }
   const child = spawn(process.execPath, [...nodeArgs, script], { env: { ...process.env, PATH: `${foreignDirectory}${path.delimiter}${process.env.PATH ?? ''}`, NEUXALLY_LARK_CLI: options.downloaded ? '' : binary, LARKSUITE_CLI_ACCESS_TOKEN: 'INHERITED-SECRET', LARKSUITE_CLI_CONFIG_DIR: '/do-not-touch' }, stdio: ['pipe', 'pipe', 'pipe'] });
   t.after(() => child.kill());
   const messages = [], pending = new Map(); let next = 1; let stderr = '';
@@ -122,3 +124,32 @@ for (const options of [{ downloaded: true }, { overrideName: 'trusted-lark-asset
     await assert.rejects(readFile(f.foreignMarker), { code: 'ENOENT' });
   });
 }
+
+
+test('创建应用完成但用户身份尚未出现时仍能查询状态并继续用户扫码', async t => {
+  const f = await bridge(t, 'app-only');
+  const before = await f.request('auth/status');
+  assert.equal(before.error, undefined);
+  assert.equal(before.result.account.configured, true);
+  assert.equal(before.result.account.available, false);
+  assert.equal((await f.request('auth/start')).result.state, 'pending');
+  await f.waitState('authorized');
+  const challenges = f.messages.filter(x => x.method === 'auth/challenge');
+  assert.equal(challenges.length, 1);
+  assert.match(challenges[0].params.actions[0].url, /auth\/device/);
+  assert.equal((await f.request('auth/status')).result.account.available, true);
+});
+
+
+test('新建应用后保持待用户授权，第二次扫码完成并真实核验才ready', async t => {
+  const f = await bridge(t, 'two-stage-app-only'); await f.request('auth/start');
+  for (let i = 0; i < 100 && f.messages.filter(x => x.method === 'auth/challenge').length < 2; i++) await new Promise(resolve => setTimeout(resolve, 20));
+  const challenges = f.messages.filter(x => x.method === 'auth/challenge');
+  assert.equal(challenges.length, 2); assert.notEqual(challenges[0].params.challengeId, challenges[1].params.challengeId);
+  const middle = await f.request('auth/status');
+  assert.equal(middle.error, undefined); assert.equal(middle.result.state, 'pending');
+  assert.equal(middle.result.account.configured, true); assert.equal(middle.result.account.available, false);
+  assert.equal(f.messages.some(x => x.method === 'auth/state' && x.params.state === 'authorized'), false);
+  await writeFile(path.join(f.params.dataDirectory, 'profile/complete-user'), 'yes');
+  await f.waitState('authorized'); assert.equal((await f.request('auth/status')).result.account.available, true);
+});

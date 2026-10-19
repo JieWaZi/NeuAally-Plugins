@@ -69,8 +69,9 @@ async function account() {
   try { await access(path.join(identity.dataDirectory, 'profile/config.json')); } catch { return emptyAccount(); }
   await prepare();
   const value = parse(await run(['auth', 'status', '--json', '--verify']));
-  if (!value.appId || !value.identities?.user) throw failure('invalid_cli_result');
-  const user = value.identities.user; const scopes = typeof user.scope === 'string' ? user.scope.split(/\s+/).filter(Boolean) : [];
+  if (!value.appId) throw failure('invalid_cli_result');
+  // 应用已创建而用户尚未登录是合法中间态，刷新后继续用户授权而不是重建应用。
+  const user = value.identities?.user ?? {}; const scopes = typeof user.scope === 'string' ? user.scope.split(/\s+/).filter(Boolean) : [];
   return { configured: true, available: user.available === true && user.verified === true && identity.scopes.every(scope => scopes.includes(scope)), id: user.openId ?? '', name: user.userName ?? '', appId: value.appId, scopes };
 }
 
