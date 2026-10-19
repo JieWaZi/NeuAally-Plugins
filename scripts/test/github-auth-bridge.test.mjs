@@ -86,7 +86,9 @@ for (const scenario of ['unverified', 'missing-scope', 'foreign-source', 'malici
 
 test('GitHub OAuth范围接受官方已蕴含的组织读权限', async t => {
   const f = await bridge(t, 'broader-scope'); await f.request('auth/start'); await f.waitState('authorized');
-  assert.equal((await f.request('auth/status')).result.account.available, true);
+  const account = (await f.request('auth/status')).result.account;
+  assert.equal(account.available, true);
+  assert.ok(account.scopes.includes('read:org'), 'generic host must see the effective granted scope');
 });
 
 test('取消等待真实停止CLI并使旧会话无法resolve，刷新产生新挑战', async t => {

@@ -50,6 +50,8 @@ async function account() {
   if (entry.tokenSource !== filename || typeof entry.login !== 'string' || !/^[a-zA-Z0-9][a-zA-Z0-9-]{0,38}$/.test(entry.login) || entry.host !== 'github.com' || typeof entry.scopes !== 'string') throw failure('authorization_failed');
   const scopes = entry.scopes.split(/[,\s]+/).filter(Boolean);
   if (scopes.some(scope => !/^[a-z_:-]{1,100}$/.test(scope))) throw failure('authorization_failed');
+  // 宿主不解释供应商权限层级；把已在线核验的蕴含权限展开为有效范围。
+  for (const required of identity.scopes) if (!scopes.includes(required) && granted(scopes, required)) scopes.push(required);
   return { configured: true, available: entry.state === 'success' && identity.scopes.every(scope => granted(scopes, scope)), id: entry.login, name: entry.login, scopes };
 }
 
