@@ -36,7 +36,7 @@ function zip(files) {
   return Buffer.concat([...local, directory, end]);
 }
 
-export async function buildCatalog({ root, out, sourceCommit, tag = 'v0.1.1' }) {
+export async function buildCatalog({ root, out, sourceCommit, tag = 'v0.1.0' }) {
   if (!/^[a-f0-9]{40}$/.test(sourceCommit)) throw new Error('sourceCommit must be a full Git commit');
   if (!/^v\d+\.\d+\.\d+(?:[-.][a-zA-Z0-9.-]+)?$/.test(tag)) throw new Error('release tag must be fixed');
   execFileSync('git', ['-C', root, 'rev-parse', '--verify', `${sourceCommit}^{commit}`], { stdio: 'pipe' });
@@ -86,7 +86,7 @@ export async function buildCatalog({ root, out, sourceCommit, tag = 'v0.1.1' }) 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const root = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
   const sourceCommit = execFileSync('git', ['-C', root, 'rev-parse', '--verify', `${process.argv[2] || 'HEAD'}^{commit}`], { encoding: 'utf8' }).trim();
-  const tag = process.argv[3] || 'v0.1.1';
+  const tag = process.argv[3] || 'v0.1.0';
   const catalog = await buildCatalog({ root, sourceCommit, tag, out: path.join(root, 'dist') });
   console.log(`Built ${catalog.entries.length} plugins from ${sourceCommit} for ${tag}`);
 }

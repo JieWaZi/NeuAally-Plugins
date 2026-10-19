@@ -74,7 +74,7 @@ test('完整标准包保留MCP声明和可直接使用的Codex本地索引，不
   const f = await fixture(t); const sourceCommit = f.commit();
   const { buildCatalog } = await import('../build-catalog.mjs'); const out = path.join(f.root, 'out');
   const catalog = await buildCatalog({ root: f.root, out, sourceCommit, fetcher: async () => { throw new Error('upstream HTTP forbidden'); } });
-  assert.match(catalog.entries[0].archiveURL, /\/v0\.1\.1\/example\.zip$/);
+  assert.match(catalog.entries[0].archiveURL, /\/v0\.1\.0\/example\.zip$/);
   const unpack = path.join(f.root, 'native'); await mkdir(unpack); execFileSync('unzip', ['-q', path.join(out, 'example.zip'), '-d', unpack]);
   const index = JSON.parse(await readFile(path.join(unpack, '.agents/plugins/marketplace.json'), 'utf8'));
   assert.equal(index.plugins[0].source.path, './plugins/example');

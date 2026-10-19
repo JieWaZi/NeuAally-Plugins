@@ -17,7 +17,7 @@ test('两插件统一来源结构，业务署名版本直接来自upstream而非
     for (const dependency of data.dependencies ?? []) files.set(`plugins/${key}/${dependency.lock}`, await readFile(new URL(dependency.lock, base)));
     validateProvenance({ data, packagePath: `plugins/${key}`, manifest, read: name => { assert.ok(files.has(name), name); return files.get(name); } });
     assert.deepEqual(Object.keys(data), ['schemaVersion', 'upstream', 'wrapper', 'dependencies', 'assets']);
-    assert.equal(manifest.version, '0.1.1');
+    assert.equal(manifest.version, '0.1.0');
     assert.equal(data.wrapper.maintainer, manifest.author.name);
     if (key === 'feishu-office') { assert.equal(data.upstream.author, 'Lark Suite CLI contributors'); assert.equal(data.upstream.tag, 'v1.0.98'); }
     else { assert.equal(data.upstream.author, 'GitHub'); assert.equal(data.upstream.distribution.mode, 'hosted-service'); assert.equal(data.upstream.version, undefined); assert.equal(data.upstream.tag, undefined); assert.equal(data.upstream.commit, undefined); assert.match(data.assets[0].sourceURL, /^https:\/\/brand\.github\.com\//); }
