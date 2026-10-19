@@ -1,0 +1,20 @@
+{
+  "repository": "https://github.com/anthropics/claude-plugins-official",
+  "commit": "ea10b213686c90bb1984b2016937310e05336cf3",
+  "path": "external_plugins/github",
+  "treeSHA": "ac3614de7ae410792daaafe026b4af7869f02ba4",
+  "author": "GitHub",
+  "license": "Apache-2.0 (repository LICENSE)",
+  "files": [
+    {
+      "path": ".claude-plugin/plugin.json",
+      "mode": "100644",
+      "sha256": "86a6c2ffb21e8b1e1a74db18c26bdf7fbb46079a0b6a42e72d741b3cbba979c9"
+    },
+    {
+      "path": ".mcp.json",
+      "mode": "100644",
+      "sha256": "b536ea03380d2f2f93f31c87a158e21e74cce5f664d20f7bdb81c6710418e06d"
+    }
+  ]
+}

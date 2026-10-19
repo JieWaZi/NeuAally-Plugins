@@ -10,13 +10,6 @@
         "source": "local",
         "path": "./neuxally-plugin/feishu-office"
       }
-    },
-    {
-      "name": "github",
-      "source": {
-        "source": "local",
-        "path": "./codex-plugins/github"
-      }
     }
   ]
 }

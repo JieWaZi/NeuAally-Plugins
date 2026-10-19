@@ -1,7 +1,7 @@
 {
   "name": "github",
-  "version": "2.0.0",
-  "description": "按当前智能体使用 OpenAI 或 Claude Code 的 GitHub 原生插件。",
+  "version": "2.0.1",
+  "description": "检索 GitHub 仓库、议题和拉取请求，协助代码审查与协作。",
   "author": {
     "name": "NeuxAlly contributors"
   },

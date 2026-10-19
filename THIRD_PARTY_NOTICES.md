@@ -2,21 +2,20 @@
 
 本仓库根 MIT 许可仅覆盖 NeuxAlly 自行编写的材料，不改变下列第三方文件的许可、作者与商标归属。目录收录和源码可分发不证明远程服务授权或目标宿主兼容性。
 
-## Codex GitHub 原生包
+## Codex GitHub 原生来源
 
-- 来源：[openai/plugins 固定目录](https://github.com/openai/plugins/tree/0722921d5542fc593105c27bd52630babd8b8c2a/plugins/github)，提交 `0722921d5542fc593105c27bd52630babd8b8c2a`，上游包版本 `0.1.12`。
-- 原作者：原始 `.codex-plugin/plugin.json` 声明为 OpenAI；GitHub 名称、图标及服务仍归各自权利人。
-- 原生文件按字节保留，包括 README、`.app.json`、`.mcp.json`、清单和全部资产；只新增 `provenance.json`。
-- 上游包清单声明 `MIT`，但该固定快照的包目录和仓库根未提供 LICENSE 文件。本仓库如实记录这一证据缺口，不把其他插件的 MIT 文本或自造版权声明当作本包原始许可。
-- `.mcp.json` 的 OAuth client ID/secret 是上游有意公开的公共客户端资料，README 原文保留；用户 access/refresh token 仍须保密。托管连接和远程服务实现未由本仓库分发。
-- [本地逐文件摘要和来源记录](codex-plugins/github/provenance.json)。
+- 来源：[openai/plugins 固定目录](https://github.com/openai/plugins/tree/0722921d5542fc593105c27bd52630babd8b8c2a/plugins/github)，提交 `0722921d5542fc593105c27bd52630babd8b8c2a`，原生包版本 `0.1.12`。
+- 原作者：上游原生清单声明为 OpenAI；GitHub 名称、图标及服务仍归各自权利人。
+- 源码库仅保存 [来源与完整性锁](codex-plugins/github/source.json)，包括上游地址、固定提交、包路径、真实 Git 子树及逐文件 SHA-256/模式。发布构建经 HTTP 还原全部原生文件，README、apps、MCP OAuth、清单和图标在 ZIP 中按字节保留。
+- 上游原生清单声明 `MIT`，但该固定快照的包目录及仓库根未提供 LICENSE 文件。如实保留证据缺口，不使用其他插件或自造文本充当本包原始许可。
+- 上游 README 明确 OAuth client ID/secret 为有意公开的公共客户端资料；用户 access/refresh token 仍须保密。托管连接和远程服务实现未由本仓库分发。
 
-## Claude GitHub 原生包
+## Claude GitHub 原生来源
 
 - 来源：[anthropics/claude-plugins-official 固定目录](https://github.com/anthropics/claude-plugins-official/tree/ea10b213686c90bb1984b2016937310e05336cf3/external_plugins/github)，提交 `ea10b213686c90bb1984b2016937310e05336cf3`。
-- 包清单原作者为 GitHub，未声明版本；不能用逻辑插件版本代替原生版本。
-- 完整保留原始 `.claude-plugin/plugin.json` 与 `.mcp.json`；新增来源记录及该提交仓库根的 [Apache-2.0 LICENSE 原文](claude-plugins/github/LICENSE.upstream)。包目录没有单独 LICENSE；不把远程 GitHub MCP 服务本身的许可等同于这份声明。
-- [逐文件摘要和来源记录](claude-plugins/github/provenance.json)。
+- 原生清单原作者为 GitHub，未声明版本；逻辑插件版本不能充当上游版本。
+- 源码库保存 [来源与完整性锁](claude-plugins/github/source.json) 及该提交仓库根的 [Apache-2.0 LICENSE 原文](claude-plugins/github/LICENSE.upstream)，不长期提交原生文件副本。发布时 HTTP 还原原始原生清单和 MCP 文件，不改写其内容。
+- 包目录没有单独 LICENSE，不把远程 GitHub MCP 服务本身的许可等同于这份声明。
 
 ## 飞书办公与 Lark Suite CLI
 
@@ -37,4 +36,4 @@
 
 ## 收录与更新规则
 
-逐包核对真实来源、完整提交、实际原生结构、作者与可得许可；保留未知项并明确披露。更新必须重新计算完整原生文件摘要并审阅补丁，不能伪造原生来源或把某一包的许可推广到整个上游仓库。OpenAI 与 Claude Code 官方文档是格式依据，不是所有已收录包已在所有宿主通过验收的证据。
+逐包核对真实来源、完整提交、实际原生结构、作者与可得许可；保留未知项并明确披露。更新使用来源登记命令重新计算完整原生树、文件摘要和模式，并审阅补丁，不能伪造原生来源或把某一包的许可推广到整个上游仓库。OpenAI 与 Claude Code 官方文档是格式依据，不是所有已收录包已在所有宿主通过验收的证据。

@@ -74,3 +74,27 @@ test('拒绝引用树中的符号链接，即使其看似指向包内', async t 
   const { buildCatalog } = await import('../build-catalog.mjs');
   await assert.rejects(buildCatalog({ root: f.root, out: path.join(f.root, 'out'), sourceCommit, tag: 'v2.0.0' }), /symbolic|mode/i);
 });
+
+test('仅来源描述经 HTTP 构建完整原生 ZIP 和索引；离线重建一致，失败保留旧产物', async t => {
+  const f = await fixture(t); const initial = f.commit();
+  const nativeTree = execFileSync('git', ['-C', f.root, 'rev-parse', `${initial}:codex-plugins/example`], { encoding: 'utf8' }).trim();
+  const content = new Map([['.codex-plugin/plugin.json', await readFile(path.join(f.root, 'codex-plugins/example/.codex-plugin/plugin.json'))], ['assets/reference.txt', Buffer.from('keep complete upstream files\n')]]);
+  const source = { repository: 'https://github.com/example/native', commit: 'b'.repeat(40), path: 'plugins/example', treeSHA: nativeTree, files: [...content].map(([name, bytes]) => ({ path: name, mode: '100644', sha256: createHash('sha256').update(bytes).digest('hex') })) };
+  await rm(path.join(f.root, 'codex-plugins/example'), { recursive: true }); await f.put('codex-plugins/example/source.json', source);
+  const sourceCommit = f.commit(); const out = path.join(f.root, 'out'); const { buildCatalog } = await import('../build-catalog.mjs');
+  const fetcher = async url => new Response(content.get(String(url).split('/plugins/example/')[1]));
+  const catalog = await buildCatalog({ root: f.root, out, sourceCommit, fetcher });
+  assert.match(catalog.entries[0].archiveURL, /\/v2\.0\.1\/example\.zip$/);
+  const archive = await readFile(path.join(out, 'example.zip'));
+  const unpack = path.join(f.root, 'unpack-http'); await mkdir(unpack); execFileSync('unzip', ['-q', path.join(out, 'example.zip'), '-d', unpack]);
+  assert.deepEqual(await readFile(path.join(unpack, 'codex-plugins/example/.codex-plugin/plugin.json')), content.get('.codex-plugin/plugin.json'));
+  const index = JSON.parse(await readFile(path.join(unpack, '.agents/plugins/marketplace.json'), 'utf8'));
+  assert.equal(index.plugins[0].source.path, './codex-plugins/example');
+  assert.equal(index.plugins[0].name, 'native-example');
+  await buildCatalog({ root: f.root, out, sourceCommit, fetcher: async () => { throw new Error('offline'); } });
+  assert.deepEqual(await readFile(path.join(out, 'example.zip')), archive);
+  source.files[0].sha256 = '0'.repeat(64); await f.put('codex-plugins/example/source.json', source); const brokenCommit = f.commit();
+  await assert.rejects(buildCatalog({ root: f.root, out, sourceCommit: brokenCommit, fetcher }), /digest/);
+  assert.deepEqual(await readFile(path.join(out, 'example.zip')), archive);
+  assert.equal(JSON.parse(await readFile(path.join(out, 'catalog.json'), 'utf8')).entries[0].sourceCommit, sourceCommit);
+});
