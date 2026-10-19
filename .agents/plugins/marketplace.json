@@ -1,0 +1,22 @@
+{
+  "name": "neuxally-plugins",
+  "interface": {
+    "displayName": "NeuxAlly Plugins"
+  },
+  "plugins": [
+    {
+      "name": "feishu-office",
+      "source": {
+        "source": "local",
+        "path": "./plugins/feishu-office"
+      }
+    },
+    {
+      "name": "github",
+      "source": {
+        "source": "local",
+        "path": "./plugins/github"
+      }
+    }
+  ]
+}
