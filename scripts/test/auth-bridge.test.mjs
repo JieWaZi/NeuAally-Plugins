@@ -1,16 +1,17 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, writeFile, readFile, rm, chmod } from 'node:fs/promises';
+import { cp, mkdtemp, mkdir, writeFile, readFile, rm, chmod } from 'node:fs/promises';
 import path from 'node:path';
 import { tmpdir } from 'node:os';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { createInterface } from 'node:readline';
+import { createHash } from 'node:crypto';
 
 // 外部边界替代真实网络和账号，真实桥接进程负责协议、隔离、状态核验和取消。
-async function bridge(t, scenario = 'success') {
+async function bridge(t, scenario = 'success', options = {}) {
   const directory = await mkdtemp(path.join(tmpdir(), 'plugin-auth-'));
   t.after(() => rm(directory, { recursive: true, force: true }));
-  const binary = path.join(directory, 'lark-cli');
+  const binary = path.join(directory, options.overrideName ?? 'lark-cli');
   await writeFile(binary, `#!/usr/bin/env node
 const fs = require('node:fs');const path=require('node:path');const args=process.argv.slice(2); const p=process.env.LARKSUITE_CLI_CONFIG_DIR;
 if (process.env.LARKSUITE_CLI_ACCESS_TOKEN) process.exit(19);
@@ -21,10 +22,29 @@ else if(args[1]==='status'){console.log(JSON.stringify({appId:'cli_example',iden
 else if(args.includes('--no-wait'))console.log(JSON.stringify({verification_url:'https://open.feishu.cn/auth/device?code=USER-EXAMPLE',device_code:'PRIVATE-DEVICE-TOKEN',expires_in:${scenario === 'expired' ? 1 : 600}}));
 else if(args.includes('--device-code')){${['cancel', 'expired'].includes(scenario) ? "setInterval(()=>{},1000);process.on('SIGTERM',()=>{fs.writeFileSync(path.join(p,'stopped'),'yes');process.exit(0)});" : "fs.writeFileSync(flag,'yes');console.log(JSON.stringify({event:'authorization_complete',missing:[]}));"}}
 else if(args[1]==='logout'){fs.rmSync(flag,{force:true});}
+else if(args[0]==='probe')console.log('MANAGED:'+p);
 else process.exit(20);
 `);
   await chmod(binary, 0o755);
-  const child = spawn(process.execPath, [path.resolve('neuxally-plugin/feishu-office/.neuxally/auth/authorize.mjs')], { env: { ...process.env, NEUXALLY_LARK_CLI: binary, LARKSUITE_CLI_ACCESS_TOKEN: 'INHERITED-SECRET', LARKSUITE_CLI_CONFIG_DIR: '/do-not-touch' }, stdio: ['pipe', 'pipe', 'pipe'] });
+  const foreignDirectory = path.join(directory, 'user-bin'); await mkdir(foreignDirectory);
+  const foreignMarker = path.join(directory, 'used-global-cli');
+  const foreignBinary = path.join(foreignDirectory, 'lark-cli');
+  await writeFile(foreignBinary, `#!/usr/bin/env node\nrequire('node:fs').writeFileSync(${JSON.stringify(foreignMarker)},'used'); console.log('USER-GLOBAL');`); await chmod(foreignBinary, 0o755);
+  let script = path.resolve('neuxally-plugin/feishu-office/.neuxally/auth/authorize.mjs'); let nodeArgs = [];
+  if (options.downloaded) {
+    // 只替代 HTTP 响应；资产校验/缓存、桥接、私密 resolve 和最终命令查找均运行真实代码。
+    const fixturePackage = path.join(directory, 'package'); const authDirectory = path.join(fixturePackage, '.neuxally/auth');
+    await cp(path.dirname(script), authDirectory, { recursive: true });
+    await cp(path.resolve('neuxally-plugin/feishu-office/.neuxally/integration.json'), path.join(fixturePackage, '.neuxally/integration.json'));
+    await mkdir(path.join(fixturePackage, 'skills/lark-doc'), { recursive: true });
+    await cp(path.resolve('neuxally-plugin/feishu-office/skills/lark-doc/SKILL.md'), path.join(fixturePackage, 'skills/lark-doc/SKILL.md'));
+    const content = await readFile(binary); const digest = createHash('sha256').update(content).digest('hex');
+    await writeFile(path.join(authDirectory, 'assets.lock.json'), JSON.stringify({ schemaVersion: 1, assets: { [`${process.platform}-${process.arch}`]: { url: 'https://github.com/example/release/lark-cli', sha256: digest, size: content.length } } }));
+    const preload = path.join(directory, 'http-response.mjs');
+    await writeFile(preload, `import { readFile } from 'node:fs/promises';globalThis.fetch=async()=>new Response(await readFile(${JSON.stringify(binary)}));`);
+    script = path.join(authDirectory, 'authorize.mjs'); nodeArgs = ['--import', preload];
+  }
+  const child = spawn(process.execPath, [...nodeArgs, script], { env: { ...process.env, PATH: `${foreignDirectory}${path.delimiter}${process.env.PATH ?? ''}`, NEUXALLY_LARK_CLI: options.downloaded ? '' : binary, LARKSUITE_CLI_ACCESS_TOKEN: 'INHERITED-SECRET', LARKSUITE_CLI_CONFIG_DIR: '/do-not-touch' }, stdio: ['pipe', 'pipe', 'pipe'] });
   t.after(() => child.kill());
   const messages = [], pending = new Map(); let next = 1; let stderr = '';
   child.stderr.on('data', data => { stderr += data; });
@@ -32,7 +52,7 @@ else process.exit(20);
   const params = { sessionId: 'session-example', pluginId: 'plugin-example', dataDirectory: path.join(directory, 'private'), scopes: ['offline_access', 'docx:document'] };
   const request = (method, extra = {}) => new Promise((resolve, reject) => { const id = next++; const timer = setTimeout(() => reject(new Error(`request timeout: ${method}; ${stderr}`)), 3000); pending.set(id, value => { clearTimeout(timer); resolve(value); }); child.stdin.write(`${JSON.stringify({ jsonrpc: '2.0', id, method, params: { ...params, ...extra } })}\n`); });
   const waitState = async state => { for(let i=0;i<150;i++){const found=messages.find(x=>x.method==='auth/state' && x.params.state===state);if(found)return found; await new Promise(resolve=>setTimeout(resolve,20));}throw new Error(`no ${state}: ${JSON.stringify(messages)} ${stderr}`); };
-  return { directory, params, request, waitState, messages, stderr: () => stderr };
+  return { directory, foreignMarker, params, request, waitState, messages, stderr: () => stderr };
 }
 
 test('多阶段挑战动态更新；真实验证成功后按组件私密 resolve', async t => {
@@ -88,3 +108,17 @@ test('官方期限到期会停止上游等待，并在刷新时生成新挑战',
   assert.notEqual(f.messages.filter(x=>x.method==='auth/challenge').at(-1).params.challengeId, previous);
   await f.request('auth/cancel');
 });
+
+
+for (const options of [{ downloaded: true }, { overrideName: 'trusted-lark-asset-with-digest' }]) {
+  test(`${options.downloaded ? '真实下载' : '任意名称受信覆盖'}经 resolve 后可按官方命令名执行，不能回退用户全局 CLI`, async t => {
+    const f = await bridge(t, 'success', options); await f.request('auth/start'); await f.waitState('authorized');
+    const resolved = await f.request('auth/resolve', { components: [{ componentId: 'doc', key: 'skills/lark-doc', target: 'skill' }] });
+    assert.equal(resolved.error, undefined);
+    const result = spawnSync('lark-cli', ['probe'], { env: { ...process.env, ...resolved.result.bindings[0].environment }, encoding: 'utf8' });
+    assert.equal(result.error, undefined);
+    assert.equal(result.status, 0);
+    assert.equal(result.stdout.trim(), `MANAGED:${path.join(f.params.dataDirectory, 'profile')}`);
+    await assert.rejects(readFile(f.foreignMarker), { code: 'ENOENT' });
+  });
+}

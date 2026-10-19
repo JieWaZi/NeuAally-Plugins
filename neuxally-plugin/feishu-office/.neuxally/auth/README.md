@@ -52,14 +52,14 @@ sequenceDiagram
 私密 resolve 示意，路径为虚构例子，不能作为公开回执：
 
 ```json
-{"jsonrpc":"2.0","id":5,"result":{"bindings":[{"componentId":"approved-component","environment":{"LARKSUITE_CLI_CONFIG_DIR":"/managed/example/profile","LARKSUITE_CLI_DATA_DIR":"/managed/example/credentials","LARKSUITE_CLI_ACCESS_TOKEN":"","LARKSUITE_CLI_NO_UPDATE_NOTIFIER":"1","LARKSUITE_CLI_NO_SKILLS_NOTIFIER":"1","PATH":"/managed/example/cache:/trusted/runtime/bin"}}]}}
+{"jsonrpc":"2.0","id":5,"result":{"bindings":[{"componentId":"approved-component","environment":{"LARKSUITE_CLI_CONFIG_DIR":"/managed/example/profile","LARKSUITE_CLI_DATA_DIR":"/managed/example/credentials","LARKSUITE_CLI_ACCESS_TOKEN":"","LARKSUITE_CLI_NO_UPDATE_NOTIFIER":"1","LARKSUITE_CLI_NO_SKILLS_NOTIFIER":"1","PATH":"/managed/example/cache/0000000000000000000000000000000000000000000000000000000000000000:/trusted/runtime/bin"}}]}}
 ```
 
 宿主必须验证 `componentId` 属于本次获准内容且不可更换已准许端点或身份，然后沿受保护执行配置交付。上例以空值清空继承的外部 token；实际清空所有已继承的 `LARKSUITE_CLI_*` 覆盖值。不要把 `environment` 或 `headers` 复制进公共回执。
 
 ## CLI 依赖与凭据隔离
 
-`assets.lock.json` 固定本插件六个平台的原始可执行文件、下载 URL、SHA-256、大小、上游提交、工具链和隔离补丁摘要。`assets.mjs` 首次从 HTTPS 下载，校验后原子写入私有 `cache/`；缓存每次核对摘要，错误、超长或中断下载不能成为可执行产物。宿主可通过受信 `NEUXALLY_LARK_CLI` 提供相同固定隔离构建；不通过 PATH 查找未知 lark-cli。
+`assets.lock.json` 固定本插件六个平台的原始可执行文件、下载 URL、SHA-256、大小、上游提交、工具链和隔离补丁摘要。`assets.mjs` 首次从 HTTPS 下载，校验后原子写入私有 `cache/`；缓存每次核对摘要，错误、超长或中断下载不能成为可执行产物。程序固定发布到 `cache/<sha256>/lark-cli`（Windows 为 `lark-cli.exe`），私密环境把这个摘要目录置于 PATH 首位，确保官方技能调用同一受管程序。宿主可通过受信 `NEUXALLY_LARK_CLI` 提供相同固定隔离构建；该受信覆盖同样按内容摘要固化为官方命令名，不能让任意资产文件名导致技能回退用户全局 CLI；不通过 PATH 查找未知 lark-cli。
 
 `LARKSUITE_CLI_CONFIG_DIR` 本身不隔离上游 Windows 注册表和 macOS 钥匙串。仓库 [隔离补丁](../../../../patches/lark-keychain-isolation.patch) 在 Get/Set/Remove 共用存储边界把服务名绑定私有 profile 摘要，覆盖 App Secret、用户 token 与 DPoP 等经该接口保存的凭据；无受管 profile 时保持上游行为。macOS 的凭据与 DPoP 文件同时遵守私有数据目录；配置、凭据目录为 `0700`，不同插件不能通过相同账号名共享身份。
 

@@ -1,4 +1,4 @@
-import { ensureAsset } from './assets.mjs';
+import { ensureAsset, ensureTrustedAsset } from './assets.mjs';
 import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { access, chmod, mkdir, readFile } from 'node:fs/promises';
@@ -8,7 +8,8 @@ import { fileURLToPath } from 'node:url';
 
 const packageRoot = fileURLToPath(new URL('../..', import.meta.url));
 const requiredScopes = JSON.parse(await readFile(new URL('../integration.json', import.meta.url), 'utf8')).authentication.scopes;
-let binary = process.env.NEUXALLY_LARK_CLI;
+const trustedBinary = process.env.NEUXALLY_LARK_CLI;
+let binary;
 const children = new Set(); let identity, task, controller, state = 'unauthorized';
 const send = value => process.stdout.write(`${JSON.stringify({ jsonrpc: '2.0', ...value })}\n`);
 const failure = code => Object.assign(new Error(code), { code });
@@ -34,7 +35,7 @@ function environment() {
 }
 
 async function prepare() {
-  if (!binary) binary = await ensureAsset({ dataDirectory: identity.dataDirectory, signal: controller?.signal }).catch(() => { throw failure('plugin_not_ready'); });
+  binary = await (trustedBinary ? ensureTrustedAsset({ dataDirectory: identity.dataDirectory, binary: trustedBinary }) : ensureAsset({ dataDirectory: identity.dataDirectory, signal: controller?.signal })).catch(() => { throw failure('plugin_not_ready'); });
   if (!path.isAbsolute(binary)) throw failure('plugin_not_ready');
   await access(binary);
   for (const directory of [identity.dataDirectory, path.join(identity.dataDirectory, 'profile'), path.join(identity.dataDirectory, 'credentials')]) { await mkdir(directory, { recursive: true, mode: 0o700 }); await chmod(directory, 0o700); }

@@ -30,3 +30,13 @@ test('摘要错误或下载中断不得留下可执行半包，未知平台明�
   assert.deepEqual(await readdir(path.join(directory, 'cache')), []);
   await assert.rejects(ensureAsset({ dataDirectory: directory, platform: 'unknown', arch: 'unknown', lock }), /unsupported/);
 });
+
+
+test('Windows 资产在独立摘要目录发布官方 lark-cli.exe 名称', async t => {
+  const directory = await mkdtemp(path.join(tmpdir(), 'plugin-assets-')); t.after(() => rm(directory, { recursive: true, force: true }));
+  const { ensureAsset } = await import(moduleURL);
+  const binary = await ensureAsset({ dataDirectory: directory, platform: 'win32', arch: 'x64', lock: { schemaVersion: 1, assets: { 'win32-x64': lock.assets['linux-x64'] } }, fetcher: async () => new Response(bytes) });
+  assert.equal(path.basename(binary), 'lark-cli.exe');
+  assert.equal(path.basename(path.dirname(binary)), sha256);
+  assert.deepEqual(await readFile(binary), bytes);
+});
