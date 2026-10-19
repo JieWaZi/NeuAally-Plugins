@@ -8,8 +8,8 @@
 
 | 插件 | 业务能力 | 维护内容 |
 | --- | --- | --- |
-| [GitHub](neuxally-plugin/github/README.md) | 检索仓库代码、跟进议题和拉取请求、审查变更与协作 | 自有逻辑入口，引用固定 OpenAI 与 Claude 原生来源 |
-| [飞书办公](neuxally-plugin/feishu-office/README.md) | 编写文档、管理多维表格、安排日程与跟进任务 | 自有 Codex 标准包、完整 Lark 技能和包内授权桥接 |
+| [GitHub](neuxally-plugin/github/README.zh-CN.md) | 检索仓库代码、跟进议题和拉取请求、审查变更与协作 | 自有逻辑入口，引用固定 OpenAI 与 Claude 原生来源 |
+| [飞书办公](neuxally-plugin/feishu-office/README.zh-CN.md) | 编写文档、管理多维表格、安排日程与跟进任务 | 自有 Codex 标准包、完整 Lark 技能和包内授权桥接 |
 
 目录存在、归档可下载、目标 CLI 已加载与真实账号已验证分别记录。发布归档不等于完成账号或平台验收。
 
@@ -62,6 +62,8 @@ node scripts/lock-native-source.mjs codex-plugins/example https://github.com/exa
 
 ## 自有标准包与原生引用
 
+各插件中英文 README 只介绍业务能力和使用方式。标准英文展示字段、本地化文字和包内品牌图标按[展示维护指南](docs/MAINTAINING.zh-CN.md)维护；来源与实现细节放在开发文档和第三方声明。
+
 在 `neuxally-plugin/<key>/.codex-plugin/plugin.json` 编写标准身份、版本、描述及准确作者/许可。按官方 [Codex 打包文档](https://developers.openai.com/plugins/build/plugins) 添加完整 skills、MCP 与其他原生组件，保留脚本、相对引用、资产和执行位；没有 `.neuxally/` 仍是标准包。
 
 逻辑入口可以关联已审阅的原生来源，不重复其组件定义：
@@ -89,7 +91,7 @@ curl --fail --location https://github.com/JieWaZi/NeuAally-Plugins/releases/down
 shasum -a 256 github.zip
 ```
 
-解包前把下载摘要与所选目录项比较。传输清单仍为 `{schemaVersion:2,entries:[...]}`，每项包含 `key`、完整 `sourceCommit`、不可变 `archiveURL`、`archiveSHA256`、`packagePath`、`name`、逻辑 `version`、`description` 与 `format: codex`。它是目录元数据，不是第二份插件清单。
+解包前把下载摘要与所选目录项比较。传输清单仍为 `{schemaVersion:2,entries:[...]}`，每项包含 `key`、完整 `sourceCommit`、不可变 `archiveURL`、`archiveSHA256`、`packagePath`、`name`、逻辑 `version`、`description` 与 `format: codex`。可选 `displayNames`、`localizedDescriptions` 和校验后内嵌的 `icon` 支持下载完整包前的本地化展示。它是目录元数据，不是第二份插件清单。
 
 搜索只读取目录；安装时下载所选完整 ZIP。离线安装快照保留逻辑入口、所有引用的原生文件、完整性/许可证据和适用的本地原生索引，便于镜像，也不要求客户端解析上游 Git ref。独立服务及首次 CLI 依赖仍可能需要联网和授权。已安装内容不随 `latest` 改变；更新发布新版本，不覆盖旧资产。
 

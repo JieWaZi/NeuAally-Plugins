@@ -1,10 +1,18 @@
 {
   "name": "feishu-office",
   "version": "0.1.0",
-  "description": "协助编写飞书文档、管理多维表格、安排日程和跟进任务。",
+  "description": "Write Feishu documents, manage tables, schedule events and follow up on tasks.",
   "author": {
     "name": "NeuxAlly contributors"
   },
   "repository": "https://github.com/JieWaZi/NeuAally-Plugins",
-  "license": "MIT"
+  "license": "MIT",
+  "interface": {
+    "displayName": "Feishu Office",
+    "shortDescription": "Write Feishu documents, manage tables, schedule events and follow up on tasks.",
+    "developerName": "NeuxAlly",
+    "logo": "./assets/icon.png",
+    "composerIcon": "./assets/icon.png",
+    "brandColor": "#3370ff"
+  }
 }

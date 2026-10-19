@@ -29,10 +29,15 @@
 
 ## 保留的 GitHub CLI 隔离材料
 
-`patches/` 保留 v1 集成使用的 GitHub CLI 隔离补丁与回归源码，便于追溯历史固定构建。这些文件不表示 v2 原生 GitHub 包使用或分发了该 CLI。
+`patches/` 保留先前集成使用的 GitHub CLI 隔离补丁与回归源码，便于追溯历史固定构建。这些文件不表示当前原生 GitHub 包使用或分发了该 CLI。
 
 - 上游 [cli/cli](https://github.com/cli/cli/tree/fc4b137cdef0a6bd28fd461b7cf9c84a5812a8cd)，固定提交 `fc4b137cdef0a6bd28fd461b7cf9c84a5812a8cd`，版本 `2.102.0`。
 - [原始 MIT 声明](patches/LICENSE.github-cli)、[历史来源记录](patches/github-cli-provenance.json)、[补丁](patches/github-keyring-isolation.patch) 与 [回归源码](patches/github-keyring-isolation_test.go)。
+
+## 自有逻辑入口的品牌图标
+
+- `neuxally-plugin/github/assets/icon.png` 原样取自上述 OpenAI 固定 GitHub 包的 `assets/github.png`，SHA-256 `07e4d8c81c906dc6fffa42f2686f446724c86c2079b23aa6c77ab9dab782fdea`，与来源锁一致。上游清单声明与缺少独立许可证文本的事实同上；GitHub 品牌不归 NeuxAlly 所有。
+- `neuxally-plugin/feishu-office/assets/icon.png` 原样复用 NeuxAlly 应用提交 `7d4f24e6d23db28a3cbd6e488a09a20498709ee1` 的品牌资源 `desktop/src/shared/assets/brands/feishu.png`，SHA-256 `a8b56475a902623937409d0fdc68b4b91040aa6ce34cd71e7870acf0cc8a62d9`。应用同目录 `README.md` 的来源记录追溯到[飞书官网](https://www.feishu.cn/) `og:image` 与[官网 CDN 原始资源](https://p1-hera.feishucdn.com/tos-cn-i-jbbdkfciu3/84a9f036fe2b44f99b899fff4beeb963~tplv-jbbdkfciu3-image:100:100.image)。飞书名称和图标归其实际权利人；未发现该品牌资源单独开源许可，不将本仓库 MIT 或 Lark CLI MIT 许可套用到商标图标，也不声称官方背书。
 
 ## 收录与更新规则
 

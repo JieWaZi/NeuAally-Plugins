@@ -62,6 +62,8 @@ The release builder fetches only these fixed files through HTTP. Each file is ve
 
 ## Own packages and native routing
 
+Keep each plugin's English and Chinese README focused on business capabilities and usage. Maintain standard English interface metadata, localized display text and package-owned brand assets according to the [presentation maintenance guide](docs/MAINTAINING.md); source and implementation details belong in development documents and notices.
+
 Create an own package at `neuxally-plugin/<key>/.codex-plugin/plugin.json` using standard identity, version, description, truthful author and license fields. Follow the official [Codex packaging documentation](https://developers.openai.com/plugins/build/plugins) for complete skills, MCP and other native components. Preserve scripts, relative references, assets and execution modes. A package without `.neuxally/` remains standard.
 
 A logical entry can refer to reviewed native sources without duplicating their components:
@@ -89,7 +91,7 @@ curl --fail --location https://github.com/JieWaZi/NeuAally-Plugins/releases/down
 shasum -a 256 github.zip
 ```
 
-Compare the downloaded digest with the selected catalog entry before extraction. The transfer index remains `{schemaVersion:2,entries:[...]}` with `key`, full `sourceCommit`, immutable `archiveURL`, `archiveSHA256`, `packagePath`, `name`, logical `version`, `description` and `format: codex`. It is directory metadata, not another plugin manifest.
+Compare the downloaded digest with the selected catalog entry before extraction. The transfer index remains `{schemaVersion:2,entries:[...]}` with `key`, full `sourceCommit`, immutable `archiveURL`, `archiveSHA256`, `packagePath`, `name`, logical `version`, `description` and `format: codex`. Optional `displayNames`, `localizedDescriptions` and validated embedded `icon` provide localized presentation before downloading a package. It is directory metadata, not another plugin manifest.
 
 Search reads only catalog metadata; installation downloads the chosen complete ZIP. An offline installation snapshot contains the logical entry, all referenced native files, integrity/license evidence and applicable local native indexes. It can be mirrored without making clients resolve upstream Git refs. Separate services and first-use CLI dependencies can still require network access and authorization. Installed content stays fixed when `latest` advances; publish new versions instead of replacing released assets.
 

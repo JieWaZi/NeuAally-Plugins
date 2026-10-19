@@ -1,4 +1,5 @@
 import { materializeNativeSource } from './native-source.mjs';
+import { catalogPresentation } from './presentation.mjs';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { cp, mkdir, mkdtemp, rename, rm, writeFile } from 'node:fs/promises';
@@ -54,6 +55,7 @@ export async function buildCatalog({ root, out, sourceCommit, tag = 'v0.1.0', fe
     if (!/^[a-z0-9][a-z0-9-]*$/.test(key)) throw new Error('unsafe plugin key');
     const manifest = JSON.parse(read(filename));
     if (manifest.name !== key || typeof manifest.version !== 'string' || !manifest.version || typeof manifest.description !== 'string') throw new Error(`invalid logical manifest: ${filename}`);
+    const presentation = catalogPresentation({ manifest, packagePath, has: name => tree.has(name), read });
     const nativeEntries = {};
     const directories = [packagePath]; const integrationPath = `${packagePath}/.neuxally/integration.json`;
     if (tree.has(integrationPath)) {
@@ -88,7 +90,7 @@ export async function buildCatalog({ root, out, sourceCommit, tag = 'v0.1.0', fe
     if (nativeEntries.claude) archiveFiles.push({ name: '.claude-plugin/marketplace.json', mode: '100644', content: Buffer.from(`${JSON.stringify({ name: `neuxally-${key}`, owner: { name: 'NeuxAlly contributors' }, metadata: { description: 'Complete fixed native plugin snapshot' }, plugins: [{ name: nativeEntries.claude.name, source: `./${nativeEntries.claude.directory}` }] }, null, 2)}\n`) });
     const archive = zip(archiveFiles.sort((a, b) => Buffer.compare(Buffer.from(a.name), Buffer.from(b.name))));
     const archiveName = `${key}.zip`; artifacts.push([archiveName, archive]);
-    entries.push({ key, sourceCommit, archiveURL: `${repository}/releases/download/${tag}/${archiveName}`, archiveSHA256: createHash('sha256').update(archive).digest('hex'), packagePath, name: manifest.name, version: manifest.version, description: manifest.description, format: 'codex' });
+    entries.push({ key, sourceCommit, archiveURL: `${repository}/releases/download/${tag}/${archiveName}`, archiveSHA256: createHash('sha256').update(archive).digest('hex'), packagePath, name: manifest.name, version: manifest.version, description: manifest.description, format: 'codex', ...presentation });
   }
   const catalog = { schemaVersion: 2, entries };
   // 所有校验和归档完成后才替换输出；失败不留下可被误发布的半包。

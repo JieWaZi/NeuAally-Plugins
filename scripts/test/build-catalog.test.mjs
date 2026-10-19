@@ -10,7 +10,7 @@ import { createServer } from 'node:http';
 async function fixture(t) {
   const root = await mkdtemp(path.join(tmpdir(), 'plugin-catalog-'));
   t.after(() => rm(root, { recursive: true, force: true }));
-  const put = async (name, value) => { await mkdir(path.dirname(path.join(root, name)), { recursive: true }); await writeFile(path.join(root, name), typeof value === 'string' ? value : JSON.stringify(value)); };
+  const put = async (name, value) => { await mkdir(path.dirname(path.join(root, name)), { recursive: true }); await writeFile(path.join(root, name), typeof value === 'string' || Buffer.isBuffer(value) ? value : JSON.stringify(value)); };
   await put('neuxally-plugin/example/.codex-plugin/plugin.json', { name: 'example', version: '0.1.0', description: '示例' });
   await put('neuxally-plugin/example/.neuxally/integration.json', { nativePlugins: { codex: { path: 'codex-plugins/example' } } });
   await put('codex-plugins/example/.codex-plugin/plugin.json', { name: 'native-example', version: '0.1.0' });
@@ -97,4 +97,73 @@ test('仅来源描述经 HTTP 构建完整原生 ZIP 和索引；离线重建一
   await assert.rejects(buildCatalog({ root: f.root, out, sourceCommit: brokenCommit, fetcher }), /digest/);
   assert.deepEqual(await readFile(path.join(out, 'example.zip')), archive);
   assert.equal(JSON.parse(await readFile(path.join(out, 'catalog.json'), 'utf8')).entries[0].sourceCommit, sourceCommit);
+});
+
+const presentationPNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFAAH/iZk9HQAAAABJRU5ErkJggg==', 'base64');
+
+// 删除目录展示派生、错误使用工作区图标或遗漏归档资源，会使安装前可用资料与实际包不一致。
+test('固定快照生成安装前双语展示和PNG图标，并保留两种README及包内资产', async t => {
+  const f = await fixture(t);
+  await f.put('neuxally-plugin/example/.codex-plugin/plugin.json', { name: 'example', version: '0.1.0', description: 'Review repository changes.', interface: { displayName: 'Example', shortDescription: 'Review repository changes.', logo: './assets/icon.png', composerIcon: './assets/icon.png' } });
+  await f.put('neuxally-plugin/example/.neuxally/presentation.json', { displayNames: { en: 'Example', 'zh-CN': '示例' }, localizedDescriptions: { en: 'Review repository changes.', 'zh-CN': '检查仓库变更。' } });
+  await f.put('neuxally-plugin/example/assets/icon.png', presentationPNG);
+  await f.put('neuxally-plugin/example/README.md', '# Example\nReview repository changes.\n');
+  await f.put('neuxally-plugin/example/README.zh-CN.md', '# 示例\n检查仓库变更。\n');
+  const sourceCommit = f.commit();
+  await f.put('neuxally-plugin/example/assets/icon.png', Buffer.from('dirty unsafe asset'));
+  const out = path.join(f.root, 'out'); const { buildCatalog } = await import('../build-catalog.mjs');
+  const catalog = await buildCatalog({ root: f.root, out, sourceCommit }); const entry = catalog.entries[0];
+  assert.equal(entry.name, 'example');
+  assert.deepEqual(entry.displayNames, { en: 'Example', 'zh-CN': '示例' });
+  assert.deepEqual(entry.localizedDescriptions, { en: 'Review repository changes.', 'zh-CN': '检查仓库变更。' });
+  assert.equal(entry.icon, 'data:image/png;base64,' + presentationPNG.toString('base64'));
+  const unpack = path.join(f.root, 'unpack-display'); await mkdir(unpack); execFileSync('unzip', ['-q', path.join(out, 'example.zip'), '-d', unpack]);
+  assert.deepEqual(await readFile(path.join(unpack, 'neuxally-plugin/example/assets/icon.png')), presentationPNG);
+  assert.equal(await readFile(path.join(unpack, 'neuxally-plugin/example/README.md'), 'utf8'), '# Example\nReview repository changes.\n');
+  assert.equal(await readFile(path.join(unpack, 'neuxally-plugin/example/README.zh-CN.md'), 'utf8'), '# 示例\n检查仓库变更。\n');
+});
+
+for (const [label, file, content, reference] of [
+  ['远程图标', 'assets/icon.png', presentationPNG, 'https://example.com/icon.png'],
+  ['越界图标', 'assets/icon.png', presentationPNG, './../icon.png'],
+  ['伪造PNG', 'assets/icon.png', Buffer.from('<svg onload="alert(1)"/>'), './assets/icon.png'],
+  ['截断PNG', 'assets/icon.png', presentationPNG.subarray(0, 30), './assets/icon.png'],
+  ['超限PNG', 'assets/icon.png', Buffer.alloc(128 * 1024 + 1), './assets/icon.png'],
+  ['超限尺寸', 'assets/icon.png', Buffer.from('iVBORw0KGgoAAAANSUhEUgAACAEAAAABCAYAAACl1iXMAAAADUlEQVR4nGP4z8DwHwAFAAH/iZk9HQAAAABJRU5ErkJggg==', 'base64'), './assets/icon.png'],
+  ['非法过滤器', 'assets/icon.png', Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP9z8DwHwAFGQIEfQUW8QAAAABJRU5ErkJggg==', 'base64'), './assets/icon.png'],
+  ['不完整像素', 'assets/icon.png', Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGP4DwABAQEAsTj2FAAAAABJRU5ErkJggg==', 'base64'), './assets/icon.png'],
+  ['错误块摘要', 'assets/icon.png', Buffer.from(presentationPNG.map((value, index) => index === 29 ? value ^ 1 : value)), './assets/icon.png'],
+  ['动态SVG', 'assets/icon.svg', Buffer.from('<svg onload="alert(1)"/>'), './assets/icon.svg'],
+]) {
+  test(`拒绝发布${label}，不产生可被误用的catalog图标`, async t => {
+    const f = await fixture(t);
+    await f.put('neuxally-plugin/example/.codex-plugin/plugin.json', { name: 'example', version: '0.1.0', description: 'Example', interface: { logo: reference } });
+    await f.put(`neuxally-plugin/example/${file}`, content); const sourceCommit = f.commit();
+    const { buildCatalog } = await import('../build-catalog.mjs');
+    await assert.rejects(buildCatalog({ root: f.root, out: path.join(f.root, 'out'), sourceCommit }), /icon|PNG|asset/i);
+    assert.deepEqual(await readdir(path.join(f.root, 'out')).catch(() => []), []);
+  });
+}
+
+for (const [label, presentation] of [
+  ['未知语言', { displayNames: { 'fr': 'Example' } }],
+  ['超限翻译', { localizedDescriptions: { en: 'x'.repeat(4097) } }],
+  ['非文字翻译', { displayNames: { en: { name: 'Example' } } }],
+  ['第二份身份', { name: 'other', displayNames: { en: 'Example' } }],
+]) {
+  test(`拒绝${label}展示附加文件`, async t => {
+    const f = await fixture(t); await f.put('neuxally-plugin/example/.neuxally/presentation.json', presentation); const sourceCommit = f.commit();
+    const { buildCatalog } = await import('../build-catalog.mjs');
+    await assert.rejects(buildCatalog({ root: f.root, out: path.join(f.root, 'out'), sourceCommit }), /presentation|locale|display/i);
+  });
+}
+
+
+test('拒绝通过符号链接读取图标', async t => {
+  const f = await fixture(t);
+  await f.put('neuxally-plugin/example/.codex-plugin/plugin.json', { name: 'example', version: '0.1.0', description: 'Example', interface: { logo: './assets/icon.png' } });
+  await f.put('neuxally-plugin/example/assets/real.png', presentationPNG);
+  await symlink('real.png', path.join(f.root, 'neuxally-plugin/example/assets/icon.png'));
+  const sourceCommit = f.commit(); const { buildCatalog } = await import('../build-catalog.mjs');
+  await assert.rejects(buildCatalog({ root: f.root, out: path.join(f.root, 'out'), sourceCommit }), /mode|icon/i);
 });
