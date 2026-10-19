@@ -95,6 +95,8 @@ sequenceDiagram
 
 ## HTTP 目录与完整快照
 
+插件详情与 SKILL 正文通过摘要绑定的[只读资料侧车](docs/DETAILS.zh-CN.md)提供，不要求先安装到伙伴或授权账号，也不需要下载完整安装 ZIP。
+
 使用[最新目录](https://github.com/JieWaZi/NeuxAlly-Plugins/releases/latest/download/catalog.json)或[固定 v0.1.0 目录](https://github.com/JieWaZi/NeuxAlly-Plugins/releases/download/v0.1.0/catalog.json)。`{schemaVersion:2,entries:[...]}` 每项记录 `key`、完整 `sourceCommit`、`archiveURL`、`archiveSHA256`、`packagePath: plugins/<key>`、标准 `name`、`version`、英文 `description` 和 `format: codex`。可选本地化文字与安全内嵌图标支持安装前展示，组件组成从真实包读取。
 
 ZIP 包含完整标准包、本地 Codex 索引、来源/许可证据与公开补丁。安装与日常目录构建均不依赖上游 Git 或 HTTP 还原。独立业务服务和首次供应商依赖仍需联网。客户端解包前核对目录所选归档摘要；测试发布资产变更时，已安装快照仍由原来源提交和摘要固定。
@@ -104,6 +106,7 @@ ZIP 包含完整标准包、本地 Codex 索引、来源/许可证据与公开�
 使用 Node 22+ 和 Git 构建已提交快照，工作区脏文件与时间不进入产物：
 
 ```sh
+npm ci
 npm test
 node scripts/build-catalog.mjs HEAD v0.1.0
 ```

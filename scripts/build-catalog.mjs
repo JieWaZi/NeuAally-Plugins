@@ -1,3 +1,4 @@
+import { packageDetails, encodeDetails } from './details.mjs';
 import { validateProvenance } from './provenance.mjs';
 import { catalogPresentation } from './presentation.mjs';
 import { execFileSync } from 'node:child_process';
@@ -45,7 +46,8 @@ export async function buildCatalog({ root, out, sourceCommit, tag = 'v0.1.0' }) 
     const entry = tree.get(name);
     if (!entry || entry.type !== 'blob' || !['100644', '100755'].includes(entry.mode)) throw new Error(`invalid file mode or missing manifest: ${name}`);
     if (entry.content) return entry.content;
-    return execFileSync('git', ['-C', root, 'cat-file', 'blob', entry.oid], { maxBuffer: 64 * 1024 * 1024 });
+    entry.content = execFileSync('git', ['-C', root, 'cat-file', 'blob', entry.oid], { maxBuffer: 64 * 1024 * 1024 });
+    return entry.content;
   };
   const manifests = [...tree.keys()].filter(name => /^plugins\/[^/]+\/\.codex-plugin\/plugin.json$/.test(name)).sort();
   if (!manifests.length) throw new Error('no canonical plugin manifests');
@@ -58,7 +60,7 @@ export async function buildCatalog({ root, out, sourceCommit, tag = 'v0.1.0' }) 
     const presentation = catalogPresentation({ manifest, packagePath, has: name => tree.has(name), read });
     const provenancePath = `${packagePath}/provenance.json`;
     if (!tree.has(provenancePath)) throw new Error(`missing provenance: ${provenancePath}`);
-    validateProvenance({ data: JSON.parse(read(provenancePath)), packagePath, manifest, read });
+    const provenance = validateProvenance({ data: JSON.parse(read(provenancePath)), packagePath, manifest, read });
     const integrationPath = `${packagePath}/.neuxally/integration.json`;
     if (tree.has(integrationPath) && Object.hasOwn(JSON.parse(read(integrationPath)), 'nativePlugins')) throw new Error('canonical package cannot use native references');
     const selected = [...tree.keys()].filter(name => ['LICENSE', 'THIRD_PARTY_NOTICES.md'].includes(name) || name.startsWith('patches/') || name.startsWith(`${packagePath}/`)).sort();
@@ -68,7 +70,10 @@ export async function buildCatalog({ root, out, sourceCommit, tag = 'v0.1.0' }) 
     archiveFiles.push({ name: '.agents/plugins/marketplace.json', mode: '100644', content: Buffer.from(`${JSON.stringify(codexIndex, null, 2)}\n`) });
     const archive = zip(archiveFiles.sort((a, b) => Buffer.compare(Buffer.from(a.name), Buffer.from(b.name))));
     const archiveName = `${key}.zip`; artifacts.push([archiveName, archive]);
-    entries.push({ key, sourceCommit, archiveURL: `${repository}/releases/download/${tag}/${archiveName}`, archiveSHA256: createHash('sha256').update(archive).digest('hex'), packagePath, name: manifest.name, version: manifest.version, description: manifest.description, format: 'codex', ...presentation });
+    const archiveSHA256 = createHash('sha256').update(archive).digest('hex');
+    const details = encodeDetails(packageDetails({ sourceCommit, archiveSHA256, packagePath, manifest, presentation, provenance, names: () => [...tree.keys()], has: name => tree.has(name), read }));
+    const detailsName = `${key}.details.json`; artifacts.push([detailsName, details]);
+    entries.push({ key, sourceCommit, archiveURL: `${repository}/releases/download/${tag}/${archiveName}`, archiveSHA256, packagePath, name: manifest.name, version: manifest.version, description: manifest.description, format: 'codex', ...presentation, detailsURL: `${repository}/releases/download/${tag}/${detailsName}`, detailsSHA256: createHash('sha256').update(details).digest('hex'), detailsSize: details.length });
   }
   const catalog = { schemaVersion: 2, entries };
   // 所有校验和归档完成后才替换输出；失败不留下可被误发布的半包。

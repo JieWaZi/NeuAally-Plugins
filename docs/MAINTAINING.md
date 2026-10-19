@@ -47,3 +47,7 @@ Publication, CLI schema validation and automated tests do not constitute real ac
 Before a plugin enters this library, maintainers validate its standard package, authentication declaration, bilingual business content, icon, provenance, licenses, and supported CLI targets. Reusing upstream code does not turn this library into an unchecked third-party package relay. NeuxAlly accepts only published catalog entries with verified archive digests. It exposes no user upload or import path and no system-plugin installation operation to conversation agents.
 
 Native plugin installation shares the corresponding external CLI environment and is not synchronized into this library or the application resource database. Managed plugins are attached for the session without replacing native installation state or model accounts. Custom supplier authentication is handled by maintained package bridges and the generic host protocol; third-party native authentication remains the CLI’s responsibility.
+
+## Read-only details
+
+The builder derives README, SKILL text and public metadata into [details sidecars](DETAILS.md). Keep source documentation public and free of live credentials; execution metadata remains in the complete ZIP. Viewing details requires no partner installation or authorization. New catalog entries advertise only the details URL, digest and exact size, without embedding documentation in the index.

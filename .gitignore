@@ -1,3 +1,5 @@
 /dist/
 /dist.tmp-*/
 /.cache/
+
+/node_modules/

@@ -175,3 +175,18 @@ test('缺失或异构来源被构建入口拒绝，完整包保留统一来源',
   assert.deepEqual(await readFile(path.join(out, 'example.zip')), archive);
   assert.deepEqual(JSON.parse(await readFile(path.join(out, 'catalog.json'), 'utf8')), catalog);
 });
+
+// 展示侧车的摘要、固定快照和技能原文由真实构建入口验证，不借安装包展开。
+test('固定快照独立生成只读资料侧车，目录校验绑定完整ZIP且可重现', async t => {
+  const f=await fixture(t), skill='---\nname: example\ndescription: |\n  First line.\n  Second line.\n---\n\n# Original skill\n';
+  await f.put('plugins/example/README.md','# Example\nEnglish.\n');await f.put('plugins/example/README.zh-CN.md','# 示例\n中文。\n');await f.put('plugins/example/skills/example/SKILL.md',skill);
+  const sourceCommit=f.commit(),out=path.join(f.root,'out');const {buildCatalog}=await import('../build-catalog.mjs');
+  const catalog=await buildCatalog({root:f.root,out,sourceCommit});const e=catalog.entries[0];
+  assert.equal(e.detailsURL,'https://github.com/JieWaZi/NeuxAlly-Plugins/releases/download/v0.1.0/example.details.json');
+  const raw=await readFile(path.join(out,'example.details.json'));assert.equal(e.detailsSize,raw.length);assert.equal(e.detailsSHA256,createHash('sha256').update(raw).digest('hex'));
+  const d=JSON.parse(raw);assert.equal(d.sourceCommit,e.sourceCommit);assert.equal(d.archiveSHA256,e.archiveSHA256);assert.equal(d.packagePath,e.packagePath);assert.equal(d.package.manifest.name,e.name);assert.equal(d.package.manifest.version,e.version);
+  assert.equal(d.readmes.en,'# Example\nEnglish.\n');assert.equal(d.readmes['zh-CN'],'# 示例\n中文。\n');assert.equal(d.skillContents['skills/example'],skill);
+  assert.equal(d.package.skills[0].description,'First line.\nSecond line.\n');assert.deepEqual(d.package.servers,[{key:'example',type:'streamable-http',url:'https://example.com/mcp'}]);
+  await f.put('plugins/example/README.md','dirty readme');await f.put('plugins/example/skills/example/SKILL.md','dirty skill');
+  await buildCatalog({root:f.root,out,sourceCommit});assert.deepEqual(await readFile(path.join(out,'example.details.json')),raw);
+});

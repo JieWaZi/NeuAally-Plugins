@@ -95,6 +95,8 @@ Provider programs are independent digest-locked dependencies downloaded by each 
 
 ## HTTP catalog and complete snapshots
 
+Details and SKILL text are available before installation or authorization through digest-bound [read-only details sidecars](docs/DETAILS.md), independently of the complete installation ZIP.
+
 Use the [latest catalog](https://github.com/JieWaZi/NeuxAlly-Plugins/releases/latest/download/catalog.json) or [fixed v0.1.0 catalog](https://github.com/JieWaZi/NeuxAlly-Plugins/releases/download/v0.1.0/catalog.json). Each `{schemaVersion:2,entries:[...]}` entry records `key`, full `sourceCommit`, `archiveURL`, `archiveSHA256`, `packagePath: plugins/<key>`, standard `name`, `version`, English `description` and `format: codex`. Optional localized maps and a validated embedded icon support presentation before package download; components are read from the actual package.
 
 A ZIP contains its complete standard package, applicable local Codex index, source/license evidence and public patches. No upstream Git or HTTP materialization is required by installation or ordinary catalog builds. Separate business services and first-use provider dependencies still require network access. Clients verify the selected archive digest before extraction. Installed snapshots remain identified by their source commit and digest when test-release assets change.
@@ -104,6 +106,7 @@ A ZIP contains its complete standard package, applicable local Codex index, sour
 Node 22+ and Git build a committed snapshot; dirty workspace files and timestamps do not enter the result:
 
 ```sh
+npm ci
 npm test
 node scripts/build-catalog.mjs HEAD v0.1.0
 ```

@@ -1,0 +1,292 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/JieWaZi/NeuxAlly-Plugins/schemas/details.schema.json",
+  "title": "NeuxAlly read-only plugin details",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "sourceCommit",
+    "archiveSHA256",
+    "packagePath",
+    "package",
+    "readmes",
+    "skillContents"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "sourceCommit": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "archiveSHA256": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "packagePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^plugins/[a-z0-9][a-z0-9-]*$"
+    },
+    "package": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifest",
+        "format",
+        "presentation",
+        "upstream",
+        "skills",
+        "servers",
+        "diagnostics"
+      ],
+      "properties": {
+        "manifest": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "version",
+            "description",
+            "author",
+            "keywords"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "homepage": {
+              "type": "string"
+            },
+            "repository": {
+              "type": "string"
+            },
+            "license": {
+              "type": "string"
+            },
+            "author": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                }
+              }
+            },
+            "keywords": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "codex"
+          ]
+        },
+        "presentation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "displayName": {
+              "type": "string"
+            },
+            "shortDescription": {
+              "type": "string"
+            },
+            "longDescription": {
+              "type": "string"
+            },
+            "developerName": {
+              "type": "string"
+            },
+            "category": {
+              "type": "string"
+            },
+            "websiteURL": {
+              "type": "string"
+            },
+            "privacyPolicyURL": {
+              "type": "string"
+            },
+            "termsOfServiceURL": {
+              "type": "string"
+            },
+            "displayNames": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [],
+              "properties": {
+                "en": {
+                  "type": "string"
+                },
+                "zh-CN": {
+                  "type": "string"
+                }
+              }
+            },
+            "localizedDescriptions": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [],
+              "properties": {
+                "en": {
+                  "type": "string"
+                },
+                "zh-CN": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "upstream": {
+          "$ref": "provenance.schema.json#/properties/upstream"
+        },
+        "icon": {
+          "type": "string",
+          "pattern": "^data:image/png;base64,"
+        },
+        "skills": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "key",
+              "name",
+              "description",
+              "path"
+            ],
+            "properties": {
+              "key": {
+                "type": "string",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "servers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "key",
+              "type"
+            ],
+            "properties": {
+              "key": {
+                "type": "string",
+                "minLength": 1
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "streamable-http",
+                  "sse",
+                  "stdio"
+                ]
+              },
+              "url": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^https?://[^\\s]+$"
+              }
+            }
+          }
+        },
+        "integration": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "authentication": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [],
+              "properties": {
+                "strategy": {
+                  "type": "string"
+                },
+                "protocol": {
+                  "type": "string"
+                },
+                "preferredAction": {
+                  "type": "string"
+                },
+                "scopes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "diagnostics": {
+          "type": "array",
+          "maxItems": 0
+        }
+      }
+    },
+    "readmes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "en": {
+          "type": "string"
+        },
+        "zh-CN": {
+          "type": "string"
+        }
+      }
+    },
+    "skillContents": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "propertyNames": {
+        "pattern": "^(?!/)(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*[\\\\:])[a-zA-Z0-9._/-]+$"
+      }
+    }
+  }
+}
