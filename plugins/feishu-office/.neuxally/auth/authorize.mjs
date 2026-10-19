@@ -1,3 +1,4 @@
+import { loadChallengePresentation } from './presentation.mjs';
 import { ensureAsset, ensureTrustedAsset } from './assets.mjs';
 import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
@@ -6,6 +7,7 @@ import path from 'node:path';
 import { createInterface } from 'node:readline';
 import { fileURLToPath } from 'node:url';
 
+const authPresentation = await loadChallengePresentation();
 const packageRoot = fileURLToPath(new URL('../..', import.meta.url));
 const requiredScopes = JSON.parse(await readFile(new URL('../integration.json', import.meta.url), 'utf8')).authentication.scopes;
 const trustedBinary = process.env.NEUXALLY_LARK_CLI;
@@ -75,10 +77,10 @@ async function account() {
   return { configured: true, available: user.available === true && user.verified === true && identity.scopes.every(scope => scopes.includes(scope)), id: user.openId ?? '', name: user.userName ?? '', appId: value.appId, scopes };
 }
 
-function challenge(url, timing) {
+function challenge(url, timing, notice) {
   const parsed = new URL(url);
   if (parsed.protocol !== 'https:' || parsed.username || parsed.password || !['open.feishu.cn', 'accounts.feishu.cn'].includes(parsed.hostname) || parsed.port) throw failure('invalid_challenge');
-  notify('auth/challenge', { challengeId: randomUUID(), actions: [{ type: 'open-url', url }, { type: 'show-qr', value: url }], ...timing });
+  notify('auth/challenge', { challengeId: randomUUID(), actions: [{ type: 'open-url', url }, { type: 'show-qr', value: url }], ...timing, ...(notice ? { notice } : {}) });
 }
 
 async function authorize(signal) {
@@ -88,7 +90,7 @@ async function authorize(signal) {
     if (!existing.configured) {
       let found = false;
       await run(['config', 'init', '--new', '--brand', 'feishu', '--lang', 'zh_cn'], { signal, timeout: 600000, stderrLine: line => {
-        try { const url = new URL(line); if (!found && url.protocol === 'https:' && url.host === 'open.feishu.cn' && url.pathname === '/page/cli' && url.searchParams.get('user_code') && !url.username && !url.password) { found = true; challenge(line, { deadlineAt: Date.now() + 600000 }); } } catch { /* 仅接受官方独立 URL 行，其他输出不公开。 */ }
+        try { const url = new URL(line); if (!found && url.protocol === 'https:' && url.host === 'open.feishu.cn' && url.pathname === '/page/cli' && url.searchParams.get('user_code') && !url.username && !url.password) { found = true; challenge(line, { deadlineAt: Date.now() + 600000 }, authPresentation.notices.initialSetup); } } catch { /* 仅接受官方独立 URL 行，其他输出不公开。 */ }
       } });
       if (!found) throw failure('invalid_challenge');
     } else if (existing.available) { state = 'authorized'; notify('auth/state', { state, account: existing }); return; }

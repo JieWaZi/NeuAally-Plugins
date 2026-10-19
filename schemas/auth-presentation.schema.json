@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/JieWaZi/NeuxAlly-Plugins/schemas/auth-presentation.schema.json",
+  "title": "Package-owned authentication challenge presentation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "notices"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "notices": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 16,
+      "propertyNames": {
+        "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"
+      },
+      "additionalProperties": {
+        "allOf": [
+          {
+            "$ref": "auth-challenge-notice.schema.json"
+          },
+          {
+            "properties": {
+              "messages": {
+                "required": [
+                  "en",
+                  "zh-CN"
+                ],
+                "properties": {
+                  "en": {
+                    "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+                  },
+                  "zh-CN": {
+                    "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

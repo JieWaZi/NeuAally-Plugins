@@ -51,3 +51,7 @@ Native plugin installation shares the corresponding external CLI environment and
 ## Read-only details
 
 The builder derives README, SKILL text and public metadata into [details sidecars](DETAILS.md). Keep source documentation public and free of live credentials; execution metadata remains in the complete ZIP. Viewing details requires no partner installation or authorization. New catalog entries advertise only the details URL, digest and exact size, without embedding documentation in the index.
+
+## Authorization challenge notices
+
+Keep step-specific warning text in a package-owned declaration. A bridge may attach it as `auth/challenge.notice.messages`; the host selects language and clears it with the current challenge, without provider branches. See the [notice contract and schemas](AUTH-CHALLENGE-NOTICES.md). Do not place this transient message in plugin descriptions or account records.

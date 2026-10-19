@@ -22,7 +22,9 @@
 
 `account` 只含 `configured`、`available`、`id`、`name`、`appId` 与 `scopes`，不含凭据。运行态采用 `pending`、`authorized`、`expired`、`cancelled`、`failed`；未授权查询采用 `unauthorized`。CLI 退出成功不代表已授权，必须通过完成事件、服务端验证和范围检查。
 
-`auth/challenge` 通知含 `{sessionId,challengeId,actions,expiresAt?,deadlineAt?}`。每阶段生成新挑战 ID；`open-url` 用 `url`，`show-qr` 与 `copy-code` 用 `value`。只有供应商实际支持跨设备的流程才能展示二维码。官方到期为 Unix 毫秒 `expiresAt`；创建应用没有官方期限时只声明本机十分钟 `deadlineAt`，不冒充官方有效期。当前飞书流程没有公开单独验证码，不生成静态或虚构验证码。
+`auth/challenge` 通知含 `{sessionId,challengeId,actions,expiresAt?,deadlineAt?,notice?}`。每阶段生成新挑战 ID；`open-url` 用 `url`，`show-qr` 与 `copy-code` 用 `value`。只有供应商实际支持跨设备的流程才能展示二维码。官方到期为 Unix 毫秒 `expiresAt`；创建应用没有官方期限时只声明本机十分钟 `deadlineAt`，不冒充官方有效期。当前飞书流程没有公开单独验证码，不生成静态或虚构验证码。
+
+首次应用设置提示由本目录 `presentation.json` 的 `notices.initialSetup.messages` 声明。桥接只在 `config init` 挑战附带 `notice`，第二次用户扫码不带，通用宿主随新挑战或取消清除旧提示。每条中英文纯文本不超过 2 KiB UTF-8，声明文件不超过 16 KiB；固定 warning 样式由宿主管理。完整[双语协议与 schema](../../../../docs/AUTH-CHALLENGE-NOTICES.zh-CN.md)说明字段及生命周期。
 
 `auth/state` 通知含 `{sessionId,state,account?,errorCode?}`。上游原始帧、token、设备秘密和错误原文不进入 UI、聊天、索引或日志。取消、到期和阶段更新必须使旧挑战失效；宿主只接受当前会话。
 
@@ -36,12 +38,12 @@ sequenceDiagram
   Bridge-->>Core: pending
   Bridge->>CLI: config init（尚未配置时）
   CLI-->>Bridge: 本次创建应用 URL
-  Bridge-->>Core: auth/challenge（新 ID、本机等待上限）
+  Bridge-->>Core: auth/challenge（新 ID、本机等待上限、首次提示）
   Core-->>User: 外链与二维码
   User->>CLI: 确认创建应用
   Bridge->>CLI: auth login --no-wait --json
   CLI-->>Bridge: 本次用户授权资料与官方期限
-  Bridge-->>Core: auth/challenge（另一 ID）
+  Bridge-->>Core: auth/challenge（另一 ID，不带提示）
   User->>CLI: 确认用户授权
   Bridge->>CLI: 等待设备授权；auth status --verify
   Bridge-->>Core: auth/state authorized + 账号摘要

@@ -17,7 +17,7 @@ const fs = require('node:fs');const path=require('node:path');const args=process
 if (process.env.LARKSUITE_CLI_ACCESS_TOKEN) process.exit(19);
 fs.mkdirSync(p,{recursive:true});
 const flag=path.join(p,'authorized');
-if(args[0]==='config'){process.stderr.write('https://open.feishu.cn.evil.example/page/cli?user_code=bad\\n');process.stderr.write('https://open.feishu.cn/page/cli?user_code=APP-EXAMPLE\\n');fs.writeFileSync(path.join(p,'config.json'),'{}');}
+if(args[0]==='config'){process.stderr.write('https://open.feishu.cn.evil.example/page/cli?user_code=bad\\n');process.stderr.write('https://open.feishu.cn/page/cli?user_code=APP-EXAMPLE\\n');${scenario === 'cancel-initial' ? "setInterval(()=>{},1000);process.on('SIGTERM',()=>{fs.writeFileSync(path.join(p,'stopped-initial'),'yes');process.exit(0)});" : "fs.writeFileSync(path.join(p,'config.json'),'{}');"}}
 else if(args[1]==='status' && ${['app-only', 'two-stage-app-only'].includes(scenario)} && !fs.existsSync(flag)){console.log(JSON.stringify({appId:'cli_example',identities:{}}));}
 else if(args[1]==='status'){console.log(JSON.stringify({appId:'cli_example',identities:{user:{available:fs.existsSync(flag),verified:${scenario !== 'unverified'},openId:'ou_example',userName:'示例账号',scope:${JSON.stringify(scenario === 'missing-scope' ? 'offline_access' : 'offline_access docx:document')}}}}));}
 else if(args.includes('--no-wait'))console.log(JSON.stringify({verification_url:'https://open.feishu.cn/auth/device?code=USER-EXAMPLE',device_code:'PRIVATE-DEVICE-TOKEN',expires_in:${scenario === 'expired' ? 1 : 600}}));
@@ -32,10 +32,11 @@ else process.exit(20);
   const foreignBinary = path.join(foreignDirectory, 'lark-cli');
   await writeFile(foreignBinary, `#!/usr/bin/env node\nrequire('node:fs').writeFileSync(${JSON.stringify(foreignMarker)},'used'); console.log('USER-GLOBAL');`); await chmod(foreignBinary, 0o755);
   let script = path.resolve('plugins/feishu-office/.neuxally/auth/authorize.mjs'); let nodeArgs = [];
-  if (options.downloaded) {
+  if (options.downloaded || options.presentation) {
     // 只替代 HTTP 响应；资产校验/缓存、桥接、私密 resolve 和最终命令查找均运行真实代码。
     const fixturePackage = path.join(directory, 'package'); const authDirectory = path.join(fixturePackage, '.neuxally/auth');
     await cp(path.dirname(script), authDirectory, { recursive: true });
+    if (options.presentation) await writeFile(path.join(authDirectory, 'presentation.json'), JSON.stringify(options.presentation));
     await cp(path.resolve('plugins/feishu-office/.neuxally/integration.json'), path.join(fixturePackage, '.neuxally/integration.json'));
     await mkdir(path.join(fixturePackage, 'skills/lark-doc'), { recursive: true });
     await cp(path.resolve('plugins/feishu-office/skills/lark-doc/SKILL.md'), path.join(fixturePackage, 'skills/lark-doc/SKILL.md'));
@@ -65,6 +66,10 @@ test('多阶段挑战动态更新；真实验证成功后按组件私密 resolve
   assert.equal(challenges.length, 2);
   assert.notEqual(challenges[0].params.challengeId, challenges[1].params.challengeId);
   assert.match(challenges[0].params.actions[0].url, /^https:\/\/open\.feishu\.cn\/page\/cli/);
+  assert.ok(challenges[0].params.notice);
+  const presentation = JSON.parse(await readFile(path.resolve('plugins/feishu-office/.neuxally/auth/presentation.json'), 'utf8'));
+  assert.deepEqual(challenges[0].params.notice, presentation.notices.initialSetup);
+  assert.equal(challenges[1].params.notice, undefined);
   assert.ok(challenges[0].params.deadlineAt); assert.equal(challenges[0].params.expiresAt, undefined);
   assert.ok(challenges[1].params.expiresAt);
   assert.equal((await f.request('auth/status')).result.state, 'authorized');
@@ -97,6 +102,12 @@ test('取消必须等待上游进程停止；旧会话不能继续交付凭据',
   assert.equal((await f.request('auth/cancel')).result.state, 'cancelled');
   assert.equal(await readFile(path.join(f.params.dataDirectory, 'profile/stopped'), 'utf8'), 'yes');
   await f.waitState('cancelled');
+  const before = f.messages.filter(x => x.method === 'auth/challenge').length;
+  assert.ok(f.messages.find(x => x.method === 'auth/challenge').params.notice);
+  assert.equal(f.messages.filter(x => x.method === 'auth/challenge').at(-1).params.notice, undefined);
+  await new Promise(resolve => setTimeout(resolve, 50));
+  assert.equal(f.messages.filter(x => x.method === 'auth/challenge').length, before);
+  assert.ok(f.messages.filter(x => x.method === 'auth/state' && x.params.state === 'cancelled').every(x => x.params.notice === undefined));
   assert.ok((await f.request('auth/resolve', { components: [{ componentId: 'doc', key: 'skills/lark-doc', target: 'skill' }] })).error);
 });
 
@@ -137,6 +148,7 @@ test('创建应用完成但用户身份尚未出现时仍能查询状态并继�
   const challenges = f.messages.filter(x => x.method === 'auth/challenge');
   assert.equal(challenges.length, 1);
   assert.match(challenges[0].params.actions[0].url, /auth\/device/);
+  assert.equal(challenges[0].params.notice, undefined);
   assert.equal((await f.request('auth/status')).result.account.available, true);
 });
 
@@ -146,10 +158,29 @@ test('新建应用后保持待用户授权，第二次扫码完成并真实核�
   for (let i = 0; i < 100 && f.messages.filter(x => x.method === 'auth/challenge').length < 2; i++) await new Promise(resolve => setTimeout(resolve, 20));
   const challenges = f.messages.filter(x => x.method === 'auth/challenge');
   assert.equal(challenges.length, 2); assert.notEqual(challenges[0].params.challengeId, challenges[1].params.challengeId);
+  assert.ok(challenges[0].params.notice); assert.equal(challenges[1].params.notice, undefined);
   const middle = await f.request('auth/status');
   assert.equal(middle.error, undefined); assert.equal(middle.result.state, 'pending');
   assert.equal(middle.result.account.configured, true); assert.equal(middle.result.account.available, false);
   assert.equal(f.messages.some(x => x.method === 'auth/state' && x.params.state === 'authorized'), false);
   await writeFile(path.join(f.params.dataDirectory, 'profile/complete-user'), 'yes');
   await f.waitState('authorized'); assert.equal((await f.request('auth/status')).result.account.available, true);
+});
+
+
+test('首次应用设置挑战取消后停止真实进程，不产生下一阶段或遗留提示', async t => {
+  const f=await bridge(t,'cancel-initial');await f.request('auth/start');
+  for(let i=0;i<100&&!f.messages.some(x=>x.method==='auth/challenge');i++)await new Promise(resolve=>setTimeout(resolve,20));
+  const first=f.messages.find(x=>x.method==='auth/challenge');assert.ok(first.params.notice);
+  assert.equal((await f.request('auth/cancel')).result.state,'cancelled');await f.waitState('cancelled');
+  assert.equal(await readFile(path.join(f.params.dataDirectory,'profile/stopped-initial'),'utf8'),'yes');
+  await new Promise(resolve=>setTimeout(resolve,50));assert.equal(f.messages.filter(x=>x.method==='auth/challenge').length,1);
+  assert.ok(f.messages.filter(x=>x.method==='auth/state').every(x=>x.params.notice===undefined));
+});
+
+test('桥接挑战提示取自包内声明，第二阶段不复用第一次提示', async t => {
+  const messages={en:'Package-declared first step warning.','zh-CN':'包内声明的首次步骤提示。'};
+  const f=await bridge(t,'success',{presentation:{schemaVersion:1,notices:{initialSetup:{messages}}}});
+  await f.request('auth/start');await f.waitState('authorized');
+  const challenges=f.messages.filter(x=>x.method==='auth/challenge');assert.deepEqual(challenges[0].params.notice,{messages});assert.equal(challenges[1].params.notice,undefined);
 });

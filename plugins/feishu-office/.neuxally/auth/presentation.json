@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "notices": {
+    "initialSetup": {
+      "messages": {
+        "en": "After the first scan completes application setup, scan again to authorize your account and permissions.",
+        "zh-CN": "首次扫码完成应用设置后，还需再次扫码完成账号与权限授权。"
+      }
+    }
+  }
+}
