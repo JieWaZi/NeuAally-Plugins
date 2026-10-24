@@ -54,14 +54,14 @@ test('拒绝带账号或查询参数的远程服务地址与超限侧车', () =>
   assert.equal(maxDetailsBytes,4*1024*1024);assert.throws(()=>encodeDetails({readmes:{en:'x'.repeat(maxDetailsBytes)}}),/details|size|large/i);
 });
 
-// 两个维护包直接从标准源派生展示，没有第二份人工技能清单。
-test('真实两插件标准声明完整生成侧车，28个飞书技能与原文一致', async () => {
-  for(const key of ['github','feishu-office']) {
+// 维护包直接从标准源派生展示，没有第二份人工技能清单。
+test('真实维护包标准声明完整生成侧车，飞书和企业微信技能与原文一致', async () => {
+  for(const key of ['github','feishu-office','wecom-office']) {
     const packagePath=`plugins/${key}`, root=new URL(`../../${packagePath}/`,import.meta.url), files=new Map();
     async function visit(dir,prefix='') { for(const e of await readdir(dir,{withFileTypes:true})) {const name=prefix+e.name;if(e.isDirectory())await visit(new URL(e.name+'/',dir),name+'/');else files.set(`${packagePath}/${name}`,await readFile(new URL(e.name,dir)));} }
     await visit(root);const manifest=JSON.parse(files.get(`${packagePath}/.codex-plugin/plugin.json`)); const presentation=JSON.parse(files.get(`${packagePath}/.neuxally/presentation.json`));const provenance=JSON.parse(files.get(`${packagePath}/provenance.json`));
     const d=packageDetails({sourceCommit:'a'.repeat(40),archiveSHA256:'b'.repeat(64),packagePath,manifest,presentation,provenance,names:()=>[...files.keys()],has:n=>files.has(n),read:n=>files.get(n)});
-    assert.equal(d.package.skills.length,key==='feishu-office'?28:0);assert.equal(d.package.servers.length,key==='github'?1:0);assert.equal(d.readmes.en,files.get(`${packagePath}/README.md`).toString());assert.equal(d.readmes['zh-CN'],files.get(`${packagePath}/README.zh-CN.md`).toString());
+    assert.equal(d.package.skills.length,key==='feishu-office'?28:key==='wecom-office'?15:0);assert.equal(d.package.servers.length,key==='github'?1:0);assert.equal(d.readmes.en,files.get(`${packagePath}/README.md`).toString());assert.equal(d.readmes['zh-CN'],files.get(`${packagePath}/README.zh-CN.md`).toString());
     for(const skill of d.package.skills) assert.equal(d.skillContents[skill.key],files.get(`${packagePath}/${skill.path}/SKILL.md`).toString());
     assert.ok(encodeDetails(d).length<maxDetailsBytes);
   }

@@ -2,12 +2,13 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-A library of self-maintained OpenAI/Codex-standard plugins for GitHub code review and collaboration, and Feishu documents, tables, calendars and tasks. Each entry is one complete package under `plugins/`.
+A library of self-maintained OpenAI/Codex-standard plugins for GitHub code review and collaboration, and Feishu and WeCom documents, tables, calendars and tasks. Each entry is one complete package under `plugins/`.
 
 | Plugin | Capabilities |
 | --- | --- |
 | [GitHub](plugins/github/README.md) | Search repository code, follow issues and pull requests, inspect changes and check results |
 | [Feishu Office](plugins/feishu-office/README.md) | Create and organize documents, manage table records, arrange events and follow up on tasks |
+| [WeCom Office](plugins/wecom-office/README.md) | Manage documents and tables, arrange meetings, track tasks and work with email and files |
 
 The root is a library and marketplace, not a single plugin, so it has no root single-plugin `plugin.json`. Each package owns its standard identity and components. The library maintains one definition per capability; host adapters handle target formats instead of collecting separate Codex and Claude implementations.
 
@@ -15,6 +16,7 @@ The root is a library and marketplace, not a single plugin, so it has no root si
 
 - `plugins/github/`: one standard manifest, one official GitHub MCP declaration, business documentation, brand assets and package-owned device authorization.
 - `plugins/feishu-office/`: one standard manifest, complete official skills and relative resources, business documentation, brand assets and package-owned authorization.
+- `plugins/wecom-office/`: one standard manifest, 15 fixed official skills and their resources, bilingual descriptions and package-owned QR authorization.
 - `.agents/plugins/marketplace.json`: local entries pointing at those actual standard packages. There is no parallel Claude marketplace or source-only native reference directory.
 - `patches/`: reviewed provider isolation patches, regression sources, original licenses and provenance.
 - `scripts/`: deterministic catalog/ZIP builds and independent fixed-source provider builds. Ignored `dist/` contains release artifacts; `.cache/` contains verified build inputs.
@@ -54,7 +56,7 @@ Each plugin's English and Chinese README describes only its own capabilities, ac
 
 MCP services and skill components remain declared by their standard files. Optional `.neuxally/integration.json` adds only host integration: authentication strategy, scopes, preferred challenge action and exact authorized component bindings. It does not declare a second identity or component list.
 
-Both included packages use `authentication.strategy: plugin-command`, `protocol: neuxally-auth/1`, trusted Node and a package-relative bridge entry. The frontend displays safe actions supplied by Core and sends cancellation requests. Optional [challenge notices](docs/AUTH-CHALLENGE-NOTICES.md) are declared by the package, apply only to the current challenge and use the host's fixed warning style. Core owns sessions, leases and private execution bindings. The bridge interprets its vendor flow; raw provider frames, credentials and private bindings do not enter the frontend.
+Packages requiring authorization use `authentication.strategy: plugin-command`, `protocol: neuxally-auth/1`, trusted Node and a package-relative bridge entry. The frontend displays safe actions supplied by Core and sends cancellation requests. Optional [challenge notices](docs/AUTH-CHALLENGE-NOTICES.md) are declared by the package, apply only to the current challenge and use the host's fixed warning style. Core owns sessions, leases and private execution bindings. The bridge interprets its vendor flow; raw provider frames, credentials and private bindings do not enter the frontend.
 
 - GitHub uses the official device OAuth flow through a fixed isolated GitHub CLI. It emits the actual `https://github.com/login/device` URL and one-time code, verifies account and granted scopes online, and resolves a private OAuth Bearer header only for the exact `github` MCP at `https://api.githubcopilot.com/mcp/`. Only the declared Codex and Claude targets receive these OAuth bindings, both referring to that same component; other runtimes cannot fall back to an undeclared authorization route. No PAT placeholder or managed app connector is bundled. `preferredAction: open-url` does not imply QR support.
 - Feishu uses successive official application-creation and user-authorization QR challenges. An existing application without a user identity is a valid pending stage; only final online identity/scope verification marks it available. `preferredAction: show-qr` allows the frontend to prepare a QR placeholder while waiting for actual challenge actions. See the [Feishu bridge contract](plugins/feishu-office/.neuxally/auth/README.md) and [GitHub bridge contract](plugins/github/.neuxally/auth/README.md).
@@ -92,6 +94,13 @@ sequenceDiagram
 ```
 
 Provider programs are independent digest-locked dependencies downloaded by each plugin into its private data directory. The host does not bundle or download one vendor program per plugin. Package locks pin HTTPS asset URLs, sizes, hashes, fixed source, toolchain and isolation evidence. GitHub clears inherited CLI credentials and uses a private profile; its patched keyring service is bound to the canonical profile directory digest. Feishu uses its existing private profile and credential isolation. Trusted test overrides can supply the same program boundary without looking up user-global CLIs.
+
+
+## WeCom Office
+
+`plugins/wecom-office/` packages 15 official skills and their relative resources from the fixed `wecom-cli` 1.3.4 release commit. It pins five official npm platform archives and extracted binary digests, downloads them privately, and uses the official CLI QR flow. It does not install a global npm command or declare a legacy MCP endpoint. The shared skill routes installation and account changes through the managed plugin lifecycle; other upstream skill content is preserved.
+
+The host must support PNG data URLs for `show-qr` challenges and merging verified private CLI paths for multiple plugins. Windows ARM64 has no official platform asset. See the [business overview](plugins/wecom-office/README.md) and [bridge guide](plugins/wecom-office/.neuxally/auth/README.md).
 
 ## HTTP catalog and complete snapshots
 

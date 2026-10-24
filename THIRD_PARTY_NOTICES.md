@@ -32,3 +32,11 @@
 ## 维护规则
 
 保留实际来源、完整提交、原作者、许可证据和修改说明；不把独立远程服务、示例或某一依赖的许可扩大到整包。更新程序依赖时必须重跑底层隔离回归、核验固定源码并生成真实跨平台摘要。自动化与源码分发不代表真实账号、平台或宿主验收。
+
+## WeCom CLI and skills
+
+`plugins/wecom-office/skills/` contains the official [WecomTeam/wecom-cli](https://github.com/WecomTeam/wecom-cli) skills and relative resources at release commit `f9b28151dc8d42f703db624fc9b26723c3c93fc5` (1.3.4). Copyright (c) 2026 WeCom; MIT text is preserved in `plugins/wecom-office/LICENSE.wecom-cli`. The shared skill's installation and authorization instructions are adapted to the managed plugin lifecycle. Other upstream skill files are preserved unchanged.
+
+The authorization bridge and asset loader are maintained by NeuxAlly contributors under MIT. Official native binaries are distributed by the five `@wecom/cli-{platform}` npm packages, with independent archive SHA-256, npm SHA-512 integrity, binary size and SHA-256 recorded in the package lock. The macOS x64 binary reports version 1.3.4 and release commit f9b2815. This does not claim reproducible builds or verification of every platform's runtime behavior. No unofficial MCP service is included.
+
+`plugins/wecom-office/assets/icon.png` is copied unchanged from the application's WeCom brand asset, originally obtained from the [official WeCom CDN](https://wwcdn.weixin.qq.com/node/wework/images/wecom_20.c2xok7bh.png). WeCom names and marks belong to Tencent and their respective owners. No separate open-source brand license was found; the wrapper MIT license does not cover trademark rights and does not imply official endorsement.

@@ -17,6 +17,13 @@
         "source": "local",
         "path": "./plugins/feishu-office"
       }
+    },
+    {
+      "name": "wecom-office",
+      "source": {
+        "source": "local",
+        "path": "./plugins/wecom-office"
+      }
     }
   ]
 }

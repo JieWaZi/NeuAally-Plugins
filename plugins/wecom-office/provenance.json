@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "upstream": {
+    "author": "WeCom",
+    "repository": "https://github.com/WecomTeam/wecom-cli",
+    "license": "MIT",
+    "commit": "f9b28151dc8d42f703db624fc9b26723c3c93fc5",
+    "version": "1.3.4",
+    "distribution": {
+      "mode": "vendored-source"
+    }
+  },
+  "wrapper": {
+    "maintainer": "NeuxAlly contributors",
+    "repository": "https://github.com/JieWaZi/NeuxAlly-Plugins",
+    "license": "MIT",
+    "changes": [
+      "Maintained standard manifest, bilingual descriptions and package-local QR authorization bridge",
+      "Vendored complete official skills and relative resources; adapted shared installation and authorization guidance to the managed lifecycle",
+      "Pinned official npm platform archives and binaries for release commit f9b28151dc8d42f703db624fc9b26723c3c93fc5"
+    ]
+  },
+  "dependencies": [
+    {
+      "name": "wecom-cli",
+      "repository": "https://github.com/WecomTeam/wecom-cli",
+      "commit": "f9b28151dc8d42f703db624fc9b26723c3c93fc5",
+      "version": "1.3.4",
+      "license": "MIT",
+      "lock": ".neuxally/auth/assets.lock.json"
+    }
+  ],
+  "assets": [
+    {
+      "path": "assets/icon.png",
+      "sourceURL": "https://wwcdn.weixin.qq.com/node/wework/images/wecom_20.c2xok7bh.png",
+      "sha256": "181f5125f35679afd6da0abb2c3933293d85bf02ddf64cf96f369f22b73b5c30",
+      "license": "WeCom brand asset; no separate open-source license found",
+      "attribution": "Tencent / WeCom; copied unchanged from the application brand asset sourced from the official website"
+    }
+  ]
+}
