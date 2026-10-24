@@ -17,7 +17,8 @@
     "changes": [
       "Maintained standard manifest, bilingual descriptions and package-local QR authorization bridge",
       "Vendored complete official skills and relative resources; adapted shared installation and authorization guidance to the managed lifecycle",
-      "Pinned official npm platform archives and binaries for release commit f9b28151dc8d42f703db624fc9b26723c3c93fc5"
+      "Pinned official npm platform archives and binaries for release commit f9b28151dc8d42f703db624fc9b26723c3c93fc5",
+      "Losslessly re-encoded the official indexed PNG icon to RGBA PNG; pixel equality verified"
     ]
   },
   "dependencies": [
@@ -34,9 +35,10 @@
     {
       "path": "assets/icon.png",
       "sourceURL": "https://wwcdn.weixin.qq.com/node/wework/images/wecom_20.c2xok7bh.png",
-      "sha256": "181f5125f35679afd6da0abb2c3933293d85bf02ddf64cf96f369f22b73b5c30",
+      "sha256": "76a7d2ecba129f465e8915e2e4ecd961a2fff992c3c672cb4a08b78fa40f87bf",
       "license": "WeCom brand asset; no separate open-source license found",
-      "attribution": "Tencent / WeCom; copied unchanged from the application brand asset sourced from the official website"
+      "attribution": "Tencent / WeCom; official website brand asset losslessly re-encoded from indexed PNG to RGBA PNG for catalog compatibility",
+      "sourceSHA256": "181f5125f35679afd6da0abb2c3933293d85bf02ddf64cf96f369f22b73b5c30"
     }
   ]
 }
